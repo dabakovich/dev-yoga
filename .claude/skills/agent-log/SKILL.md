@@ -84,3 +84,8 @@ Log: finished planning discussions, scaffolded features, user corrections of
 agent output, non-obvious decisions — one good line per meaningful collaboration
 beat. Skip: trivial mechanical steps (a single rename, re-reading a file),
 and don't double-log something already captured.
+
+**Never log the commit action itself.** Committing/reverting is mechanical — the
+meaningful beat is the *work* the commit captures, which is already logged. Don't
+add entries like "committed X to main". (This also means a commit-only turn has
+nothing new to log.)

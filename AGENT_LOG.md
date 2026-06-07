@@ -19,3 +19,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `scaffold` Added the DB layer: `TypeOrmModule.forRootAsync` + `ConfigModule`, plus a `Task` entity and `TasksModule` CRUD.
 - `chore` Wired a global `ValidationPipe` (whitelist + transform) and `.env`/`.env.example` for DB config.
 - `review` Verified end-to-end: build clean, CRUD smoke test passes, validation returns 400, baseline tests green.
+- `edit` Refined the `agent-log` skill: never log the commit/revert action itself — log the work it captures.
