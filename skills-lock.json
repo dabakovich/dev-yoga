@@ -6,6 +6,11 @@
       "sourceType": "github",
       "skillPath": "skills/conventional-commit/SKILL.md",
       "computedHash": "f29c9486cede6c7b2df0cfb0a2e4aa67446552b991bcf17d1b309e903171f03d"
+    },
+    "nestjs": {
+      "source": "smithery.ai",
+      "sourceType": "well-known",
+      "computedHash": "a95e34b64300f885c133e0adc96e6862d631e7550d744e821153c20e60923d59"
     }
   }
 }

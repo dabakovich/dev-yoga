@@ -67,6 +67,16 @@ One bullet, one line. Grouped under a `## YYYY-MM-DD` date heading.
      from this conversation into one or a few entries.
 4. Edit the file in place. Don't echo the whole log back — confirm with just the
    line(s) you added.
+5. **Auto-commit the log.** Immediately commit *only* `AGENT_LOG.md` so the record
+   stays current and self-contained:
+   ```
+   git add AGENT_LOG.md && git commit -m "docs(agent-log): <summary of entries>"
+   ```
+   - Stage `AGENT_LOG.md` alone — never `git add .`. Leave other working-tree
+     changes untouched and uncommitted.
+   - Use a concise `docs(agent-log):` subject summarizing the appended line(s).
+   - If there's nothing to commit (file unchanged) or the repo has no commits yet,
+     skip silently. Don't push.
 
 ## What to log vs skip
 
