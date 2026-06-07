@@ -31,3 +31,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `decision` Switched mobile off Expo Go to a local dev build (`expo-dev-client`) — needed for native modules (`@expo/ui`, `expo-glass-effect`); kept it local-only since David has no paid Apple Developer account.
 - `scaffold` Added `expo-dev-client` (~56.0.19) and built/ran the iOS Simulator dev build via `expo run:ios`; verified the app + dev-launcher render on the booted iPhone 17 sim.
 - `edit` Pointed `npm start` at `expo start --dev-client` and rewrote the README around the local dev-build flow (free-Apple-ID iPhone 7-day caveat, Android steps).
+- `manual` David flattened the tab route groups — `(tasks)`/`(chat)` → `index`/`chat` folders — and added the iOS bundle id + personal Apple team to app.json; agent committed it separately from the dev-build switch.
