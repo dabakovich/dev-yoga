@@ -20,3 +20,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `chore` Wired a global `ValidationPipe` (whitelist + transform) and `.env`/`.env.example` for DB config.
 - `review` Verified end-to-end: build clean, CRUD smoke test passes, validation returns 400, baseline tests green.
 - `edit` Refined the `agent-log` skill: never log the commit/revert action itself — log the work it captures.
+- `decision` David chose to use the Expo plugin/skills for further mobile app development.
