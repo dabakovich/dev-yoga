@@ -32,3 +32,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `scaffold` Added `expo-dev-client` (~56.0.19) and built/ran the iOS Simulator dev build via `expo run:ios`; verified the app + dev-launcher render on the booted iPhone 17 sim.
 - `edit` Pointed `npm start` at `expo start --dev-client` and rewrote the README around the local dev-build flow (free-Apple-ID iPhone 7-day caveat, Android steps).
 - `manual` David flattened the tab route groups — `(tasks)`/`(chat)` → `index`/`chat` folders — and added the iOS bundle id + personal Apple team to app.json; agent committed it separately from the dev-build switch.
+- `feature` Made the server address env-configurable for LAN access from a real iPhone: backend binds to `HOST` in `app.listen`, mobile reads `EXPO_PUBLIC_API_BASE` (localhost fallback); added `.env`/`.env.example` both sides and gitignored `mobile/.env`.

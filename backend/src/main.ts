@@ -11,6 +11,11 @@ async function bootstrap() {
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, transform: true }),
   );
-  await app.listen(process.env.PORT ?? 3000);
+  // Bind to HOST so the server is reachable beyond `localhost`. Default
+  // `0.0.0.0` listens on all interfaces, exposing it on the Mac's LAN IP so a
+  // phone on the same Wi-Fi can hit it (the mobile app points at that IP).
+  const port = process.env.PORT ?? 3000;
+  const host = process.env.HOST ?? '0.0.0.0';
+  await app.listen(port, host);
 }
 bootstrap();
