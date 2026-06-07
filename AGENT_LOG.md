@@ -21,3 +21,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `review` Verified end-to-end: build clean, CRUD smoke test passes, validation returns 400, baseline tests green.
 - `edit` Refined the `agent-log` skill: never log the commit/revert action itself — log the work it captures.
 - `decision` David chose to use the Expo plugin/skills for further mobile app development.
+- `scaffold` Created `backend/scripts/seed.js` — bare better-sqlite3 seed with 7 sample tasks across all statuses; added `npm run seed` and `seed:clean` scripts.
