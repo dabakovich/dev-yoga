@@ -12,3 +12,5 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `scaffold` Added a Stop hook (`.claude/hooks/agent-log-checkpoint.sh` + `.claude/settings.json`) that nudges a log entry only on a real checkpoint, not every turn.
 - `chore` Initialized the git repo with a `.gitignore` and made the initial commit via the conventional-commit skill.
 - `edit` Added an auto-commit step to the `agent-log` skill: after appending entries it commits only `AGENT_LOG.md`.
+- `decision` Chose a flat `backend/` + `mobile/` monorepo layout — minimal ceremony over workspaces; avoids Expo/Metro friction for the test task.
+- `scaffold` Initialized NestJS 11 backend in `backend/` via Nest CLI (npm, strict TS, no nested git).
