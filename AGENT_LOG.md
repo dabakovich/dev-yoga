@@ -14,3 +14,8 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `edit` Added an auto-commit step to the `agent-log` skill: after appending entries it commits only `AGENT_LOG.md`.
 - `decision` Chose a flat `backend/` + `mobile/` monorepo layout — minimal ceremony over workspaces; avoids Expo/Metro friction for the test task.
 - `scaffold` Initialized NestJS 11 backend in `backend/` via Nest CLI (npm, strict TS, no nested git).
+- `decision` Adopted Context7 (`ctx7`/find-docs) proactively for library/API docs, codegen, and setup — no need to ask each time.
+- `decision` Chose TypeORM + better-sqlite3 with `synchronize` (dev-only, env-gated) over migrations for the first DB iteration.
+- `scaffold` Added the DB layer: `TypeOrmModule.forRootAsync` + `ConfigModule`, plus a `Task` entity and `TasksModule` CRUD.
+- `chore` Wired a global `ValidationPipe` (whitelist + transform) and `.env`/`.env.example` for DB config.
+- `review` Verified end-to-end: build clean, CRUD smoke test passes, validation returns 400, baseline tests green.

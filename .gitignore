@@ -19,6 +19,9 @@ web-build/
 *.sqlite
 *.sqlite3
 *.db
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm
 
 # Logs
 *.log
