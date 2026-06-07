@@ -24,3 +24,6 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `scaffold` Created `backend/scripts/seed.js` — bare better-sqlite3 seed with 7 sample tasks across all statuses; added `npm run seed` and `seed:clean` scripts.
 - `config` Added Postman MCP server (`postman-mcp-server`) to global Claude Code config via `claude mcp add`.
 - `scaffold` Created "DevYoga API" Postman collection in the DevYoga workspace with a `GET /tasks` "Get All Tasks" request; saved workspace ID to project memory.
+- `scaffold` Initialized Expo SDK 56 mobile app in `mobile/` (Expo Router, TS): NativeTabs (Tasks + Chat) with per-tab Stacks, task list/detail/create-as-formSheet screens, typed fetch helpers to the backend; verified via `tsc` + iOS export.
+- `review` Agent reviewed initialized mobile code against vercel-react-native-skills; identified list perf, missing StyleSheet.create, and unstable callback issues.
+- `edit` Applied review fixes: memoized TaskCard, extracted TaskItem + EmptyState from FlatList renderItem, hoisted all styles to StyleSheet.create, wrapped onSubmit/handleSubmit/status handlers in useCallback; lint clean.
