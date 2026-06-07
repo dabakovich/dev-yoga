@@ -28,3 +28,6 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `review` Agent reviewed initialized mobile code against vercel-react-native-skills; identified list perf, missing StyleSheet.create, and unstable callback issues.
 - `edit` Applied review fixes: memoized TaskCard, extracted TaskItem + EmptyState from FlatList renderItem, hoisted all styles to StyleSheet.create, wrapped onSubmit/handleSubmit/status handlers in useCallback; lint clean.
 - `edit` Removed 11 Expo template leftover assets (react-logo, expo-badge, tabIcons, tutorial-web, logo-glow); kept only the 9 files referenced in app.json.
+- `decision` Switched mobile off Expo Go to a local dev build (`expo-dev-client`) — needed for native modules (`@expo/ui`, `expo-glass-effect`); kept it local-only since David has no paid Apple Developer account.
+- `scaffold` Added `expo-dev-client` (~56.0.19) and built/ran the iOS Simulator dev build via `expo run:ios`; verified the app + dev-launcher render on the booted iPhone 17 sim.
+- `edit` Pointed `npm start` at `expo start --dev-client` and rewrote the README around the local dev-build flow (free-Apple-ID iPhone 7-day caveat, Android steps).
