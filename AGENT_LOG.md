@@ -1,0 +1,12 @@
+# AGENT_LOG
+
+A log of human–AI collaboration on DevLog. Short one-line entries grouped by date.
+Maintained by the `agent-log` skill (proactively) or by hand.
+
+## 2026-06-07
+
+- `plan` Chose the stack: NestJS + SQLite (CRUD) backend, React Native Expo frontend, AI features later.
+- `scaffold` Agent created the `agent-log` project skill to maintain this log.
+- `decision` Log entries are English, one-line, tagged by interaction type; agent work and manual user edits are distinguished.
+- `decision` Made the `agent-log` skill proactive-by-default — it auto-logs in the background after agent interactions.
+- `scaffold` Added a Stop hook (`.claude/hooks/agent-log-checkpoint.sh` + `.claude/settings.json`) that nudges a log entry only on a real checkpoint, not every turn.

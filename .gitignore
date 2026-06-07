@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+web-build/
+
+# Expo
+.expo/
+*.tsbuildinfo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# SQLite databases
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+*.log
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# OS / editor
+.DS_Store
