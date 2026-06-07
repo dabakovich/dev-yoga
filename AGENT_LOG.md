@@ -10,3 +10,5 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `decision` Log entries are English, one-line, tagged by interaction type; agent work and manual user edits are distinguished.
 - `decision` Made the `agent-log` skill proactive-by-default — it auto-logs in the background after agent interactions.
 - `scaffold` Added a Stop hook (`.claude/hooks/agent-log-checkpoint.sh` + `.claude/settings.json`) that nudges a log entry only on a real checkpoint, not every turn.
+- `chore` Initialized the git repo with a `.gitignore` and made the initial commit via the conventional-commit skill.
+- `edit` Added an auto-commit step to the `agent-log` skill: after appending entries it commits only `AGENT_LOG.md`.
