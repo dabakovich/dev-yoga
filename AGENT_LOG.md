@@ -27,3 +27,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `scaffold` Initialized Expo SDK 56 mobile app in `mobile/` (Expo Router, TS): NativeTabs (Tasks + Chat) with per-tab Stacks, task list/detail/create-as-formSheet screens, typed fetch helpers to the backend; verified via `tsc` + iOS export.
 - `review` Agent reviewed initialized mobile code against vercel-react-native-skills; identified list perf, missing StyleSheet.create, and unstable callback issues.
 - `edit` Applied review fixes: memoized TaskCard, extracted TaskItem + EmptyState from FlatList renderItem, hoisted all styles to StyleSheet.create, wrapped onSubmit/handleSubmit/status handlers in useCallback; lint clean.
+- `edit` Removed 11 Expo template leftover assets (react-logo, expo-badge, tabIcons, tutorial-web, logo-glow); kept only the 9 files referenced in app.json.
