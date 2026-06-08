@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, Repository } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
+import { FindTasksQueryDto } from './dto/find-tasks-query.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './task.entity';
 
@@ -20,8 +21,12 @@ export class TasksService {
     return this.tasksRepository.save(task);
   }
 
-  findAll(): Promise<Task[]> {
-    return this.tasksRepository.find({ order: { createdAt: 'DESC' } });
+  findAll(query: FindTasksQueryDto = {}): Promise<Task[]> {
+    // Build the filter conditionally — an empty `where` matches every row, so
+    // omitting `status` keeps the original "return everything" behavior.
+    const where: FindOptionsWhere<Task> = {};
+    if (query.status) where.status = query.status;
+    return this.tasksRepository.find({ where, order: { createdAt: 'DESC' } });
   }
 
   async findOne(id: string): Promise<Task> {
