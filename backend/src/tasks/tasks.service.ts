@@ -1,8 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { FindTasksQueryDto } from './dto/find-tasks-query.dto';
+import {
+  FindTasksQueryDto,
+  SortOrder,
+  TaskSortBy,
+} from './dto/find-tasks-query.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './task.entity';
 
@@ -22,11 +26,32 @@ export class TasksService {
   }
 
   findAll(query: FindTasksQueryDto = {}): Promise<Task[]> {
-    // Build the filter conditionally — an empty `where` matches every row, so
-    // omitting `status` keeps the original "return everything" behavior.
-    const where: FindOptionsWhere<Task> = {};
-    if (query.status) where.status = query.status;
-    return this.tasksRepository.find({ where, order: { createdAt: 'DESC' } });
+    const sortBy = query.sortBy ?? TaskSortBy.CREATED_AT;
+    const order: 'ASC' | 'DESC' =
+      (query.sortOrder ?? SortOrder.DESC) === SortOrder.ASC ? 'ASC' : 'DESC';
+
+    // QueryBuilder (rather than the simpler `find`) because sorting by priority
+    // needs a computed rank — see below.
+    const qb = this.tasksRepository.createQueryBuilder('task');
+    // Omitting `status` keeps the original "return everything" behavior.
+    if (query.status) {
+      qb.where('task.status = :status', { status: query.status });
+    }
+
+    if (sortBy === TaskSortBy.PRIORITY) {
+      // priority is stored as text ('low' | 'medium' | 'high'), so a plain
+      // column sort would be alphabetical (high < low < medium). Map each value
+      // to a numeric rank so ASC = low→high and DESC = high→low, then break ties
+      // by recency for a stable order.
+      qb.orderBy(
+        `CASE task.priority WHEN 'high' THEN 3 WHEN 'medium' THEN 2 WHEN 'low' THEN 1 ELSE 0 END`,
+        order,
+      ).addOrderBy('task.createdAt', 'DESC');
+    } else {
+      qb.orderBy('task.createdAt', order);
+    }
+
+    return qb.getMany();
   }
 
   async findOne(id: string): Promise<Task> {
