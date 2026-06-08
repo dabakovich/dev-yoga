@@ -48,3 +48,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `feature` Added a Sort menu to the tasks header beside the filter: SwiftUI `Menu` with "Sort by" (Date/Priority) and "Order" (Descending/Ascending) sections, filled icon when non-default; `getTasks` now sends `sortBy`/`sortOrder`.
 - `edit` Increased header icon size (`font({ size: 22 })`) and added tap-area padding (`padding({ all: 4 })`) to both SortMenu and StatusFilter.
 - `edit` Changed default sort to priority DESC in backend DTO, mobile index state, and SortMenu's DEFAULT_SORT_BY constant.
+- `edit` Moved priority and status badges to the bottom of TaskCard — priority left, status right via `justifyContent: 'space-between'`.
