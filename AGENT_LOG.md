@@ -40,3 +40,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `feature` Planned and implemented optional `?status=` filter for `GET /tasks`: new `FindTasksQueryDto`, conditional TypeORM `where`, updated controller + service; mobile `getTasks(status?)` + `StatusFilter` chip row wired to index screen; backend committed, mobile UI pending David's edits.
 - `edit` Reworked mobile status filter per David: dropped the body chip row for a native `@expo/ui` `Menu` bar-button in the header (funnel SF Symbol, fills when active, checkmark on selected) placed before the `＋`.
 - `fix` Replaced the header `＋` text glyph with a native SwiftUI `Button(systemImage="plus")` so both header buttons share one native style, tint, and vertical alignment.
+- `fix` Plus button rendered empty — a `systemImage`-only `Button` needs `labelStyle('iconOnly')` (with a real `label` kept for accessibility) to show just the icon.
