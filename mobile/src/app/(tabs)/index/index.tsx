@@ -70,7 +70,7 @@ export default function TasksScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | null>(null);
-  const [sortBy, setSortBy] = useState<SortBy>('createdAt');
+  const [sortBy, setSortBy] = useState<SortBy>('priority');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   const load = useCallback(async () => {

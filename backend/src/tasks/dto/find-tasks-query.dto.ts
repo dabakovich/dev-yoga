@@ -24,7 +24,7 @@ export class FindTasksQueryDto {
 
   @IsOptional()
   @IsEnum(TaskSortBy)
-  sortBy?: TaskSortBy = TaskSortBy.CREATED_AT;
+  sortBy?: TaskSortBy = TaskSortBy.PRIORITY;
 
   @IsOptional()
   @IsEnum(SortOrder)

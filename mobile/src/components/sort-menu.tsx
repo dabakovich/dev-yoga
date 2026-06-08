@@ -15,7 +15,7 @@ const ORDER_OPTIONS: { value: SortOrder; label: string }[] = [
 
 // The list's default order — anything else counts as an active sort and flips
 // the icon to its filled variant (mirroring StatusFilter's behavior).
-const DEFAULT_SORT_BY: SortBy = 'createdAt';
+const DEFAULT_SORT_BY: SortBy = 'priority';
 const DEFAULT_SORT_ORDER: SortOrder = 'desc';
 
 // A header bar-button: an up/down arrows icon that opens a native pull-down
