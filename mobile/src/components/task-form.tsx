@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import type { CreateTaskInput, TaskStatus } from '@/utils/api';
+import type { CreateTaskInput, TaskPriority, TaskStatus } from '@/utils/api';
 
 const STATUSES: { value: TaskStatus; label: string }[] = [
   { value: 'todo', label: 'To Do' },
@@ -12,10 +12,17 @@ const STATUSES: { value: TaskStatus; label: string }[] = [
   { value: 'done', label: 'Done' },
 ];
 
+const PRIORITIES: { value: TaskPriority; label: string }[] = [
+  { value: 'low', label: 'Low' },
+  { value: 'medium', label: 'Medium' },
+  { value: 'high', label: 'High' },
+];
+
 export interface TaskFormValues {
   title: string;
   description: string;
   status: TaskStatus;
+  priority: TaskPriority;
 }
 
 export function TaskForm({
@@ -33,6 +40,7 @@ export function TaskForm({
   const [title, setTitle] = useState(initial?.title ?? '');
   const [description, setDescription] = useState(initial?.description ?? '');
   const [status, setStatus] = useState<TaskStatus>(initial?.status ?? 'todo');
+  const [priority, setPriority] = useState<TaskPriority>(initial?.priority ?? 'medium');
 
   const canSubmit = title.trim().length > 0 && !busy;
 
@@ -55,8 +63,9 @@ export function TaskForm({
       title: title.trim(),
       description: description.trim() || undefined,
       status,
+      priority,
     });
-  }, [onSubmit, title, description, status]);
+  }, [onSubmit, title, description, status, priority]);
 
   return (
     <View style={styles.container}>
@@ -86,19 +95,32 @@ export function TaskForm({
       <View style={styles.field}>
         <ThemedText type="smallBold">Status</ThemedText>
         <View style={styles.statusRow}>
-          {STATUSES.map((s) => {
-            const selected = s.value === status;
-            return (
-              <StatusButton
-                key={s.value}
-                value={s.value}
-                label={s.label}
-                selected={selected}
-                onSelect={setStatus}
-                theme={theme}
-              />
-            );
-          })}
+          {STATUSES.map((s) => (
+            <OptionButton
+              key={s.value}
+              value={s.value}
+              label={s.label}
+              selected={s.value === status}
+              onSelect={setStatus}
+              theme={theme}
+            />
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.field}>
+        <ThemedText type="smallBold">Priority</ThemedText>
+        <View style={styles.statusRow}>
+          {PRIORITIES.map((p) => (
+            <OptionButton
+              key={p.value}
+              value={p.value}
+              label={p.label}
+              selected={p.value === priority}
+              onSelect={setPriority}
+              theme={theme}
+            />
+          ))}
         </View>
       </View>
 
@@ -114,15 +136,21 @@ export function TaskForm({
   );
 }
 
-type StatusButtonProps = {
-  value: TaskStatus;
+type OptionButtonProps<V extends string> = {
+  value: V;
   label: string;
   selected: boolean;
-  onSelect: (value: TaskStatus) => void;
+  onSelect: (value: V) => void;
   theme: ReturnType<typeof useTheme>;
 };
 
-function StatusButton({ value, label, selected, onSelect, theme }: StatusButtonProps) {
+function OptionButton<V extends string>({
+  value,
+  label,
+  selected,
+  onSelect,
+  theme,
+}: OptionButtonProps<V>) {
   const handlePress = useCallback(() => onSelect(value), [onSelect, value]);
 
   return (

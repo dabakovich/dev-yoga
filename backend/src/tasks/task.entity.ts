@@ -12,6 +12,12 @@ export enum TaskStatus {
   DONE = 'done',
 }
 
+export enum TaskPriority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+}
+
 // `@Entity()` maps this class to a database table ("task" by default). Each
 // decorated property becomes a column; TypeORM reads these decorators to build
 // (and, with synchronize, auto-create) the schema.
@@ -30,6 +36,9 @@ export class Task {
   // text while keeping the enum constraint at the application level.
   @Column({ type: 'simple-enum', enum: TaskStatus, default: TaskStatus.TODO })
   status!: TaskStatus;
+
+  @Column({ type: 'simple-enum', enum: TaskPriority, default: TaskPriority.MEDIUM })
+  priority!: TaskPriority;
 
   // Managed automatically by TypeORM on insert / update.
   @CreateDateColumn()

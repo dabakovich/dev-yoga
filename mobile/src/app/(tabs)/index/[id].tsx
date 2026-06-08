@@ -92,6 +92,7 @@ export default function TaskDetailScreen() {
             title: task.title,
             description: task.description ?? '',
             status: task.status,
+            priority: task.priority,
           }}
           submitLabel="Save Changes"
           busy={busy}

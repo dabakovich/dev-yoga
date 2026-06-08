@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { TaskStatus } from '../task.entity';
+import { TaskPriority, TaskStatus } from '../task.entity';
 
 // The shape accepted by `POST /tasks`. The class-validator decorators are what
 // the global ValidationPipe checks each request against.
@@ -15,4 +15,8 @@ export class CreateTaskDto {
   @IsOptional()
   @IsEnum(TaskStatus)
   status?: TaskStatus;
+
+  @IsOptional()
+  @IsEnum(TaskPriority)
+  priority?: TaskPriority;
 }
