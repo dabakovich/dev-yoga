@@ -46,3 +46,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `fix` Centered the filter icon in its header glass button — the `Menu`'s empty `label=""` baseline-shifted the SF Symbol up/left; switched to a real label + `labelStyle('iconOnly')` (verified on the simulator).
 - `test` Added a minimal `TasksService` unit spec (mock repo via `getRepositoryToken`, chainable QueryBuilder stub): covers create, findOne found/missing, remove-missing, and findAll status filter + priority CASE ordering; 6 tests green.
 - `feature` Added a Sort menu to the tasks header beside the filter: SwiftUI `Menu` with "Sort by" (Date/Priority) and "Order" (Descending/Ascending) sections, filled icon when non-default; `getTasks` now sends `sortBy`/`sortOrder`.
+- `edit` Increased header icon size (`font({ size: 22 })`) and added tap-area padding (`padding({ all: 4 })`) to both SortMenu and StatusFilter.
