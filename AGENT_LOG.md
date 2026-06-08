@@ -41,3 +41,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `edit` Reworked mobile status filter per David: dropped the body chip row for a native `@expo/ui` `Menu` bar-button in the header (funnel SF Symbol, fills when active, checkmark on selected) placed before the `＋`.
 - `fix` Replaced the header `＋` text glyph with a native SwiftUI `Button(systemImage="plus")` so both header buttons share one native style, tint, and vertical alignment.
 - `fix` Plus button rendered empty — a `systemImage`-only `Button` needs `labelStyle('iconOnly')` (with a real `label` kept for accessibility) to show just the icon.
+- `feature` Moved add-task out of the header into a FAB: a circular `borderedProminent` SwiftUI `Button` pinned bottom-right above the tab bar; header now keeps only the filter.
