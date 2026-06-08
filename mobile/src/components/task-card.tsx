@@ -24,10 +24,17 @@ export const TaskCard = memo(function TaskCard({ task }: { task: Task }) {
 
   return (
     <ThemedView type="backgroundElement" style={styles.card}>
-      <View style={styles.row}>
-        <ThemedText type="smallBold" style={styles.title} numberOfLines={1}>
-          {task.title}
+      <ThemedText type="smallBold" numberOfLines={1}>
+        {task.title}
+      </ThemedText>
+
+      {task.description ? (
+        <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
+          {task.description}
         </ThemedText>
+      ) : null}
+
+      <View style={styles.tagsRow}>
         <View style={[styles.badge, { backgroundColor: priority.color }]}>
           <ThemedText type="small" style={styles.badgeText}>
             {priority.label}
@@ -39,12 +46,6 @@ export const TaskCard = memo(function TaskCard({ task }: { task: Task }) {
           </ThemedText>
         </View>
       </View>
-
-      {task.description ? (
-        <ThemedText type="small" themeColor="textSecondary" numberOfLines={2}>
-          {task.description}
-        </ThemedText>
-      ) : null}
     </ThemedView>
   );
 });
@@ -56,13 +57,10 @@ const styles = StyleSheet.create({
     borderCurve: 'continuous',
     gap: Spacing.two,
   },
-  row: {
+  tagsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.two,
-  },
-  title: {
-    flex: 1,
+    justifyContent: 'space-between',
   },
   badge: {
     paddingHorizontal: Spacing.two,
