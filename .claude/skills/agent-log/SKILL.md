@@ -1,13 +1,13 @@
 ---
 name: agent-log
-description: Proactively maintain AGENT_LOG.md by appending short one-line entries that record AI-agent collaboration (planning, scaffolding, edits, review, fixes, decisions). Runs in proactive mode by DEFAULT — log automatically in the background at natural checkpoints after agent interactions, without waiting to be asked. Also runs on demand when the user says "log this" / passes raw text to record verbatim. Keeps the DevLog test-task AGENT_LOG honest and current.
+description: Proactively maintain AGENT_LOG.md by appending short one-line entries that record AI-agent collaboration (planning, scaffolding, edits, review, fixes, decisions). Runs in proactive mode by DEFAULT — log automatically in the background at natural checkpoints after agent interactions, without waiting to be asked. Also runs on demand when the user says "log this" / passes raw text to record verbatim. Keeps the DevYoga test-task AGENT_LOG honest and current.
 ---
 
 # agent-log
 
 Maintain `AGENT_LOG.md` at the repo root — an honest, concise record of how the
 human and the AI agent collaborated on this project. This is a graded deliverable
-of the DevLog test task: reviewers read it to judge whether AI was used as an
+of the DevYoga test task: reviewers read it to judge whether AI was used as an
 *amplifier*, not a replacement. Honesty beats polish.
 
 ## Proactive by default

@@ -1,6 +1,6 @@
 # AGENT_LOG
 
-A log of human–AI collaboration on DevLog. Short one-line entries grouped by date.
+A log of human–AI collaboration on DevYoga. Short one-line entries grouped by date.
 Maintained by the `agent-log` skill (proactively) or by hand.
 
 ## 2026-06-07
