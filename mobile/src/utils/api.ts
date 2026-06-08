@@ -24,6 +24,17 @@ export interface CreateTaskInput {
 
 export type UpdateTaskInput = Partial<CreateTaskInput>;
 
+// Sort params accepted by `GET /tasks` — mirrors the backend FindTasksQueryDto
+// (backend/src/tasks/dto/find-tasks-query.dto.ts).
+export type SortBy = 'createdAt' | 'priority';
+export type SortOrder = 'asc' | 'desc';
+
+export interface TaskQuery {
+  status?: TaskStatus;
+  sortBy?: SortBy;
+  sortOrder?: SortOrder;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { 'Content-Type': 'application/json' },
@@ -40,8 +51,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-export const getTasks = (status?: TaskStatus) =>
-  request<Task[]>(`/tasks${status ? `?status=${status}` : ''}`);
+export const getTasks = (query: TaskQuery = {}) => {
+  const params = new URLSearchParams();
+  if (query.status) params.set('status', query.status);
+  if (query.sortBy) params.set('sortBy', query.sortBy);
+  if (query.sortOrder) params.set('sortOrder', query.sortOrder);
+  const qs = params.toString();
+  return request<Task[]>(`/tasks${qs ? `?${qs}` : ''}`);
+};
 
 export const getTask = (id: string) => request<Task>(`/tasks/${id}`);
 

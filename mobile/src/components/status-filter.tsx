@@ -1,5 +1,5 @@
 import { Button, Host, Menu } from '@expo/ui/swift-ui';
-import { labelStyle } from '@expo/ui/swift-ui/modifiers';
+import { font, labelStyle, padding } from '@expo/ui/swift-ui/modifiers';
 
 import type { TaskStatus } from '@/utils/api';
 
@@ -27,7 +27,11 @@ export function StatusFilter({
 
   return (
     <Host matchContents>
-      <Menu label="Filter tasks" systemImage={icon} modifiers={[labelStyle('iconOnly')]}>
+      <Menu
+        label="Filter tasks"
+        systemImage={icon}
+        modifiers={[labelStyle('iconOnly'), font({ size: 22 }), padding({ all: 4 })]}
+      >
         {OPTIONS.map((option) => (
           <Button
             key={option.value ?? 'all'}

@@ -18,7 +18,7 @@ export default function RootLayout() {
             headerShown: true,
             title: 'New Task',
             sheetGrabberVisible: true,
-            sheetAllowedDetents: [0.6, 1.0],
+            sheetAllowedDetents: [0.4, 1.0],
           }}
         />
       </Stack>

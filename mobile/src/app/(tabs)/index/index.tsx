@@ -12,11 +12,19 @@ import { Link, router, Stack, useFocusEffect } from 'expo-router';
 import { memo, useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
 
+import { SortMenu } from '@/components/sort-menu';
 import { StatusFilter } from '@/components/status-filter';
 import { TaskCard } from '@/components/task-card';
 import { ThemedText } from '@/components/themed-text';
 import { BottomTabInset, Spacing } from '@/constants/theme';
-import { deleteTask, getTasks, type Task, type TaskStatus } from '@/utils/api';
+import {
+  deleteTask,
+  getTasks,
+  type SortBy,
+  type SortOrder,
+  type Task,
+  type TaskStatus,
+} from '@/utils/api';
 
 type TaskItemProps = { item: Task; onDelete: (id: string) => void };
 
@@ -62,17 +70,19 @@ export default function TasksScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | null>(null);
+  const [sortBy, setSortBy] = useState<SortBy>('createdAt');
+  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   const load = useCallback(async () => {
     try {
       setError(null);
-      setTasks(await getTasks(statusFilter ?? undefined));
+      setTasks(await getTasks({ status: statusFilter ?? undefined, sortBy, sortOrder }));
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load tasks');
     } finally {
       setLoading(false);
     }
-  }, [statusFilter]);
+  }, [statusFilter, sortBy, sortOrder]);
 
   // Refetch whenever the screen regains focus (after create / edit / delete).
   useFocusEffect(
@@ -99,7 +109,19 @@ export default function TasksScreen() {
     <>
       <Stack.Screen
         options={{
-          headerRight: () => <StatusFilter value={statusFilter} onChange={setStatusFilter} />,
+          headerRight: () => (
+            <View style={styles.headerActions}>
+              <SortMenu
+                sortBy={sortBy}
+                sortOrder={sortOrder}
+                onChange={(by, order) => {
+                  setSortBy(by);
+                  setSortOrder(order);
+                }}
+              />
+              <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+            </View>
+          ),
         }}
       />
 
@@ -141,6 +163,11 @@ export default function TasksScreen() {
 }
 
 const styles = StyleSheet.create({
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
+  },
   centered: {
     flex: 1,
     alignItems: 'center',
