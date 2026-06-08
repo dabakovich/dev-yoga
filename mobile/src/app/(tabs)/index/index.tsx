@@ -1,18 +1,28 @@
+import { Button, Host } from '@expo/ui/swift-ui';
+import {
+  buttonBorderShape,
+  buttonStyle,
+  controlSize,
+  font,
+  labelStyle,
+  shadow,
+} from '@expo/ui/swift-ui/modifiers';
 import * as Haptics from 'expo-haptics';
-import { Link, Stack, useFocusEffect } from 'expo-router';
+import { Link, router, Stack, useFocusEffect } from 'expo-router';
 import { memo, useCallback, useState } from 'react';
 import { ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
 
+import { StatusFilter } from '@/components/status-filter';
 import { TaskCard } from '@/components/task-card';
 import { ThemedText } from '@/components/themed-text';
-import { Spacing } from '@/constants/theme';
-import { deleteTask, getTasks, type Task } from '@/utils/api';
+import { BottomTabInset, Spacing } from '@/constants/theme';
+import { deleteTask, getTasks, type Task, type TaskStatus } from '@/utils/api';
 
 type TaskItemProps = { item: Task; onDelete: (id: string) => void };
 
 const TaskItem = memo(function TaskItem({ item, onDelete }: TaskItemProps) {
   return (
-    <Link href={{ pathname: '/[id]', params: { id: item.id } }} asChild>
+    <Link href={{ pathname: './[id]', params: { id: item.id } }} asChild>
       <Link.Trigger>
         <Pressable>
           <TaskCard task={item} />
@@ -51,17 +61,18 @@ export default function TasksScreen() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | null>(null);
 
   const load = useCallback(async () => {
     try {
       setError(null);
-      setTasks(await getTasks());
+      setTasks(await getTasks(statusFilter ?? undefined));
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load tasks');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [statusFilter]);
 
   // Refetch whenever the screen regains focus (after create / edit / delete).
   useFocusEffect(
@@ -88,13 +99,7 @@ export default function TasksScreen() {
     <>
       <Stack.Screen
         options={{
-          headerRight: () => (
-            <Link href="/new">
-              <ThemedText type="link" themeColor="text" style={styles.addButton}>
-                ＋
-              </ThemedText>
-            </Link>
-          ),
+          headerRight: () => <StatusFilter value={statusFilter} onChange={setStatusFilter} />,
         }}
       />
 
@@ -112,6 +117,25 @@ export default function TasksScreen() {
           renderItem={renderItem}
         />
       )}
+
+      {/* Floating action button to create a task. */}
+      <View style={styles.fab}>
+        <Host matchContents>
+          <Button
+            label="Add task"
+            systemImage="plus"
+            modifiers={[
+              labelStyle('iconOnly'),
+              font({ size: 24, weight: 'semibold' }),
+              buttonStyle('borderedProminent'),
+              buttonBorderShape('circle'),
+              controlSize('large'),
+              shadow({ radius: 6, y: 3, color: '#00000040' }),
+            ]}
+            onPress={() => router.push('/new')}
+          />
+        </Host>
+      </View>
     </>
   );
 }
@@ -131,8 +155,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
   },
-  addButton: {
-    fontSize: 28,
-    lineHeight: 32,
+  fab: {
+    position: 'absolute',
+    right: Spacing.four,
+    bottom: BottomTabInset + Spacing.four,
   },
 });

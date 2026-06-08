@@ -40,7 +40,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-export const getTasks = () => request<Task[]>('/tasks');
+export const getTasks = (status?: TaskStatus) =>
+  request<Task[]>(`/tasks${status ? `?status=${status}` : ''}`);
 
 export const getTask = (id: string) => request<Task>(`/tasks/${id}`);
 
