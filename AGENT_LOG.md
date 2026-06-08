@@ -42,3 +42,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `fix` Replaced the header `＋` text glyph with a native SwiftUI `Button(systemImage="plus")` so both header buttons share one native style, tint, and vertical alignment.
 - `fix` Plus button rendered empty — a `systemImage`-only `Button` needs `labelStyle('iconOnly')` (with a real `label` kept for accessibility) to show just the icon.
 - `feature` Moved add-task out of the header into a FAB: a circular `borderedProminent` SwiftUI `Button` pinned bottom-right above the tab bar; header now keeps only the filter.
+- `feature` Added sorting to `GET /tasks`: `sortBy` (createdAt|priority) + `sortOrder` (asc|desc) enums on `FindTasksQueryDto`; service switched to QueryBuilder with a CASE rank for priority (low<medium<high) and a createdAt tie-break, default unchanged (createdAt DESC). Backend only.
