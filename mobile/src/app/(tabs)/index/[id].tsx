@@ -5,7 +5,8 @@ import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } fro
 import { TaskForm } from '@/components/task-form';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
-import { useDeleteTaskMutation, useGetTaskQuery, useUpdateTaskMutation } from '@/store/tasks-api';
+import { useDeleteConfirm } from '@/hooks/use-delete-confirm';
+import { useGetTaskQuery, useUpdateTaskMutation } from '@/store/tasks-api';
 import type { CreateTaskInput } from '@/utils/api';
 
 export default function TaskDetailScreen() {
@@ -14,7 +15,7 @@ export default function TaskDetailScreen() {
 
   const { data: task, isLoading, error } = useGetTaskQuery(id);
   const [updateTask, { isLoading: isSaving }] = useUpdateTaskMutation();
-  const [deleteTask] = useDeleteTaskMutation();
+  const confirmDelete = useDeleteConfirm();
 
   const onSave = useCallback(
     async (values: CreateTaskInput) => {
@@ -29,22 +30,8 @@ export default function TaskDetailScreen() {
   );
 
   const onDelete = useCallback(() => {
-    Alert.alert('Delete task?', 'This cannot be undone.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteTask(id).unwrap();
-            router.back();
-          } catch (e) {
-            Alert.alert('Could not delete', e instanceof Error ? e.message : 'Unknown error');
-          }
-        },
-      },
-    ]);
-  }, [id, router, deleteTask]);
+    confirmDelete(id, () => router.back());
+  }, [id, router, confirmDelete]);
 
   if (error) {
     return (

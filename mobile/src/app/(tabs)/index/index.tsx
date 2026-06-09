@@ -12,6 +12,8 @@ import { Link, router, Stack } from 'expo-router';
 import { memo, useCallback } from 'react';
 import { ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
 
+import { useDeleteConfirm } from '@/hooks/use-delete-confirm';
+
 import { SortMenu } from '@/components/sort-menu';
 import { StatusFilter } from '@/components/status-filter';
 import { TaskCard } from '@/components/task-card';
@@ -19,7 +21,7 @@ import { ThemedText } from '@/components/themed-text';
 import { BottomTabInset, Spacing } from '@/constants/theme';
 import { useAppDispatch, useAppSelector } from '@/store';
 import { selectFilters, setSort, setStatus } from '@/store/filters-slice';
-import { useDeleteTaskMutation, useGetTasksQuery } from '@/store/tasks-api';
+import { useGetTasksQuery } from '@/store/tasks-api';
 import type { Task } from '@/utils/api';
 
 type TaskItemProps = { item: Task; onDelete: (id: string) => void };
@@ -74,14 +76,14 @@ export default function TasksScreen() {
     { refetchOnFocus: true },
   );
 
-  const [deleteTask] = useDeleteTaskMutation();
+  const confirmDelete = useDeleteConfirm();
 
   const onDelete = useCallback(
-    async (id: string) => {
+    (id: string) => {
       if (Platform.OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      deleteTask(id);
+      confirmDelete(id);
     },
-    [deleteTask],
+    [confirmDelete],
   );
 
   const renderItem = useCallback(
