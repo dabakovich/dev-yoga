@@ -8,7 +8,7 @@
     "scheme": "devyoga",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/app.icon",
       "bundleIdentifier": "com.dabakovich.dev-yoga",
       "appleTeamId": "S64MA5KTKJ"
     },
