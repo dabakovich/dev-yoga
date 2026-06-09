@@ -32,18 +32,15 @@ const TaskItem = memo(function TaskItem({ item, onDelete }: TaskItemProps) {
   return (
     <Link href={{ pathname: './[id]', params: { id: item.id } }} asChild>
       <Link.Trigger>
-        <Pressable>
-          <TaskCard task={item} />
-        </Pressable>
+        <TaskCard task={item} />
       </Link.Trigger>
-      <Link.Preview />
+      <Link.Preview style={{ backgroundColor: 'white' }} />
       <Link.Menu>
         <Link.MenuAction
-          title="Delete"
           icon="trash"
           destructive
           onPress={() => onDelete(item.id)}
-        />
+        >Delete</Link.MenuAction>
       </Link.Menu>
     </Link>
   );

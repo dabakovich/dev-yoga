@@ -74,7 +74,6 @@ export default function TaskDetailScreen() {
     <>
       <Stack.Screen
         options={{
-          title: task.title,
           headerRight: () => (
             <Pressable onPress={onDelete}>
               <ThemedText type="link" style={styles.deleteButton}>

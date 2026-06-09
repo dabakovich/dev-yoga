@@ -5,6 +5,7 @@
 
 import '@/global.css';
 
+import { DarkTheme, DefaultTheme } from 'expo-router';
 import { Platform } from 'react-native';
 
 export const Colors = {
@@ -25,6 +26,33 @@ export const Colors = {
 } as const;
 
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
+
+/**
+ * Navigation themes derived from `Colors` so the navigator (screen background,
+ * header bar, default text) is driven by the same palette as `ThemedView` /
+ * `ThemedText`. Spread the stock React Navigation themes to keep `fonts`,
+ * `primary`, `border`, etc., overriding only the background-related colors.
+ * Fed to `ThemeProvider` in the root layout — fixes every screen at once.
+ */
+export const AppLightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    background: Colors.light.background,
+    card: Colors.light.background,
+    text: Colors.light.text,
+  },
+} as const;
+
+export const AppDarkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: Colors.dark.background,
+    card: Colors.dark.background,
+    text: Colors.dark.text,
+  },
+} as const;
 
 export const Fonts = Platform.select({
   ios: {

@@ -1,5 +1,7 @@
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { Stack, ThemeProvider } from 'expo-router';
 import { useColorScheme } from 'react-native';
+
+import { AppDarkTheme, AppLightTheme } from '@/constants/theme';
 
 // Root navigator. Native tabs live in the `(tabs)` group; `new` is presented as
 // a form sheet over the tabs. Wrapping everything in ThemeProvider keeps headers
@@ -8,7 +10,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+    <ThemeProvider value={colorScheme === 'dark' ? AppDarkTheme : AppLightTheme}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
