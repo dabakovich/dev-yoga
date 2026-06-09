@@ -10,7 +10,7 @@ import {
 import * as Haptics from 'expo-haptics';
 import { Link, router, Stack } from 'expo-router';
 import { memo, useCallback } from 'react';
-import { ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, FlatList, Platform, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 
 import { useDeleteConfirm } from '@/hooks/use-delete-confirm';
 
@@ -71,9 +71,10 @@ export default function TasksScreen() {
     isLoading,
     isFetching,
     error,
+    refetch,
   } = useGetTasksQuery(
     { status: filters.status ?? undefined, sortBy: filters.sortBy, sortOrder: filters.sortOrder },
-    { refetchOnFocus: true },
+    { refetchOnFocus: true, refetchOnMountOrArgChange: true },
   );
 
   const confirmDelete = useDeleteConfirm();
@@ -129,12 +130,10 @@ export default function TasksScreen() {
           contentContainerStyle={styles.list}
           ListEmptyComponent={<EmptyState error={errorMessage} />}
           renderItem={renderItem}
+          refreshControl={
+            <RefreshControl refreshing={isFetching && !isLoading} onRefresh={refetch} />
+          }
         />
-      )}
-
-      {/* Background-refresh indicator shown while the cache revalidates. */}
-      {isFetching && !isLoading && (
-        <ActivityIndicator style={styles.refreshIndicator} />
       )}
 
       {/* Floating action button to create a task. */}
@@ -183,10 +182,5 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: Spacing.four,
     bottom: BottomTabInset + Spacing.four,
-  },
-  refreshIndicator: {
-    position: 'absolute',
-    top: 8,
-    alignSelf: 'center',
   },
 });
