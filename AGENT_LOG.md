@@ -50,3 +50,7 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `edit` Changed default sort to priority DESC in backend DTO, mobile index state, and SortMenu's DEFAULT_SORT_BY constant.
 - `edit` Moved priority and status badges to the bottom of TaskCard — priority left, status right via `justifyContent: 'space-between'`.
 - `scaffold` Added a root `CLAUDE.md` — high-level orientation for new sessions, centered on the north star (easing developers' task-triage pain with AI as the amplifier), plus stack/layout, data model & API, run commands, and conventions.
+
+## 2026-06-09
+
+- `edit` Added `AppLightTheme`/`AppDarkTheme` to `theme.ts` derived from `Colors` palette; wired into root `ThemeProvider` so nav headers and screen backgrounds match the app palette; cleared task-detail dynamic title; removed redundant `Pressable` wrapper from `TaskCard`; fixed `Link.MenuAction` child syntax.
