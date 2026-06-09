@@ -1,37 +1,31 @@
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback } from 'react';
 import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { TaskForm } from '@/components/task-form';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
-import { deleteTask, getTask, updateTask, type CreateTaskInput, type Task } from '@/utils/api';
+import { useDeleteTaskMutation, useGetTaskQuery, useUpdateTaskMutation } from '@/store/tasks-api';
+import type { CreateTaskInput } from '@/utils/api';
 
 export default function TaskDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const [task, setTask] = useState<Task | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    getTask(id)
-      .then(setTask)
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load task'));
-  }, [id]);
+  const { data: task, isLoading, error } = useGetTaskQuery(id);
+  const [updateTask, { isLoading: isSaving }] = useUpdateTaskMutation();
+  const [deleteTask] = useDeleteTaskMutation();
 
   const onSave = useCallback(
     async (values: CreateTaskInput) => {
-      setBusy(true);
       try {
-        await updateTask(id, values);
+        await updateTask({ id, body: values }).unwrap();
         router.back();
       } catch (e) {
-        setBusy(false);
         Alert.alert('Could not save', e instanceof Error ? e.message : 'Unknown error');
       }
     },
-    [id, router],
+    [id, router, updateTask],
   );
 
   const onDelete = useCallback(() => {
@@ -42,7 +36,7 @@ export default function TaskDetailScreen() {
         style: 'destructive',
         onPress: async () => {
           try {
-            await deleteTask(id);
+            await deleteTask(id).unwrap();
             router.back();
           } catch (e) {
             Alert.alert('Could not delete', e instanceof Error ? e.message : 'Unknown error');
@@ -50,19 +44,19 @@ export default function TaskDetailScreen() {
         },
       },
     ]);
-  }, [id, router]);
+  }, [id, router, deleteTask]);
 
   if (error) {
     return (
       <View style={styles.centered}>
         <ThemedText type="small" themeColor="textSecondary" selectable>
-          {error}
+          {'status' in error ? `Error ${error.status}` : 'Failed to load task'}
         </ThemedText>
       </View>
     );
   }
 
-  if (!task) {
+  if (isLoading || !task) {
     return (
       <View style={styles.centeredCompact}>
         <ActivityIndicator />
@@ -94,7 +88,7 @@ export default function TaskDetailScreen() {
             priority: task.priority,
           }}
           submitLabel="Save Changes"
-          busy={busy}
+          busy={isSaving}
           onSubmit={onSave}
         />
       </ScrollView>

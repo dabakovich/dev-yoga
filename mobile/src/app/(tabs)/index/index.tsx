@@ -8,8 +8,8 @@ import {
   shadow,
 } from '@expo/ui/swift-ui/modifiers';
 import * as Haptics from 'expo-haptics';
-import { Link, router, Stack, useFocusEffect } from 'expo-router';
-import { memo, useCallback, useState } from 'react';
+import { Link, router, Stack } from 'expo-router';
+import { memo, useCallback } from 'react';
 import { ActivityIndicator, FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { SortMenu } from '@/components/sort-menu';
@@ -17,14 +17,10 @@ import { StatusFilter } from '@/components/status-filter';
 import { TaskCard } from '@/components/task-card';
 import { ThemedText } from '@/components/themed-text';
 import { BottomTabInset, Spacing } from '@/constants/theme';
-import {
-  deleteTask,
-  getTasks,
-  type SortBy,
-  type SortOrder,
-  type Task,
-  type TaskStatus,
-} from '@/utils/api';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { selectFilters, setSort, setStatus } from '@/store/filters-slice';
+import { useDeleteTaskMutation, useGetTasksQuery } from '@/store/tasks-api';
+import type { Task } from '@/utils/api';
 
 type TaskItemProps = { item: Task; onDelete: (id: string) => void };
 
@@ -32,7 +28,9 @@ const TaskItem = memo(function TaskItem({ item, onDelete }: TaskItemProps) {
   return (
     <Link href={{ pathname: './[id]', params: { id: item.id } }} asChild>
       <Link.Trigger>
-        <TaskCard task={item} />
+        <Pressable>
+          <TaskCard task={item} />
+        </Pressable>
       </Link.Trigger>
       <Link.Preview style={{ backgroundColor: 'white' }} />
       <Link.Menu>
@@ -63,44 +61,39 @@ function EmptyState({ error }: { error: string | null }) {
 }
 
 export default function TasksScreen() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<TaskStatus | null>(null);
-  const [sortBy, setSortBy] = useState<SortBy>('priority');
-  const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+  const dispatch = useAppDispatch();
+  const filters = useAppSelector(selectFilters);
 
-  const load = useCallback(async () => {
-    try {
-      setError(null);
-      setTasks(await getTasks({ status: statusFilter ?? undefined, sortBy, sortOrder }));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load tasks');
-    } finally {
-      setLoading(false);
-    }
-  }, [statusFilter, sortBy, sortOrder]);
-
-  // Refetch whenever the screen regains focus (after create / edit / delete).
-  useFocusEffect(
-    useCallback(() => {
-      load();
-    }, [load]),
+  const {
+    data: tasks = [],
+    isLoading,
+    isFetching,
+    error,
+  } = useGetTasksQuery(
+    { status: filters.status ?? undefined, sortBy: filters.sortBy, sortOrder: filters.sortOrder },
+    { refetchOnFocus: true },
   );
+
+  const [deleteTask] = useDeleteTaskMutation();
 
   const onDelete = useCallback(
     async (id: string) => {
       if (Platform.OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      await deleteTask(id);
-      load();
+      deleteTask(id);
     },
-    [load],
+    [deleteTask],
   );
 
   const renderItem = useCallback(
     ({ item }: { item: Task }) => <TaskItem item={item} onDelete={onDelete} />,
     [onDelete],
   );
+
+  const errorMessage = error
+    ? 'status' in error
+      ? `Error ${error.status}`
+      : 'Failed to load tasks'
+    : null;
 
   return (
     <>
@@ -109,20 +102,20 @@ export default function TasksScreen() {
           headerRight: () => (
             <View style={styles.headerActions}>
               <SortMenu
-                sortBy={sortBy}
-                sortOrder={sortOrder}
-                onChange={(by, order) => {
-                  setSortBy(by);
-                  setSortOrder(order);
-                }}
+                sortBy={filters.sortBy}
+                sortOrder={filters.sortOrder}
+                onChange={(by, order) => dispatch(setSort({ sortBy: by, sortOrder: order }))}
               />
-              <StatusFilter value={statusFilter} onChange={setStatusFilter} />
+              <StatusFilter
+                value={filters.status}
+                onChange={(status) => dispatch(setStatus(status))}
+              />
             </View>
           ),
         }}
       />
 
-      {loading ? (
+      {isLoading ? (
         <View style={styles.centered}>
           <ActivityIndicator />
         </View>
@@ -132,9 +125,14 @@ export default function TasksScreen() {
           keyExtractor={(t) => t.id}
           contentInsetAdjustmentBehavior="automatic"
           contentContainerStyle={styles.list}
-          ListEmptyComponent={<EmptyState error={error} />}
+          ListEmptyComponent={<EmptyState error={errorMessage} />}
           renderItem={renderItem}
         />
+      )}
+
+      {/* Background-refresh indicator shown while the cache revalidates. */}
+      {isFetching && !isLoading && (
+        <ActivityIndicator style={styles.refreshIndicator} />
       )}
 
       {/* Floating action button to create a task. */}
@@ -183,5 +181,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: Spacing.four,
     bottom: BottomTabInset + Spacing.four,
+  },
+  refreshIndicator: {
+    position: 'absolute',
+    top: 8,
+    alignSelf: 'center',
   },
 });

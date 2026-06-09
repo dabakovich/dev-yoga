@@ -1,27 +1,26 @@
 import { useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { Alert, ScrollView, StyleSheet } from 'react-native';
 
 import { TaskForm } from '@/components/task-form';
 import { Spacing } from '@/constants/theme';
-import { createTask, type CreateTaskInput } from '@/utils/api';
+import { useCreateTaskMutation } from '@/store/tasks-api';
+import type { CreateTaskInput } from '@/utils/api';
 
 export default function NewTaskScreen() {
   const router = useRouter();
-  const [busy, setBusy] = useState(false);
+  const [createTask, { isLoading: busy }] = useCreateTaskMutation();
 
   const onSubmit = useCallback(
     async (values: CreateTaskInput) => {
-      setBusy(true);
       try {
-        await createTask(values);
+        await createTask(values).unwrap();
         router.back();
       } catch (e) {
-        setBusy(false);
         Alert.alert('Could not create task', e instanceof Error ? e.message : 'Unknown error');
       }
     },
-    [router],
+    [router, createTask],
   );
 
   return (
