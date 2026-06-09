@@ -10,5 +10,9 @@ import { TasksService } from './tasks.service';
   imports: [TypeOrmModule.forFeature([Task])],
   controllers: [TasksController],
   providers: [TasksService],
+  // Export TasksService so other modules (e.g. AiModule) that `imports:
+  // [TasksModule]` can inject it. A provider is private to its module unless
+  // it is listed here — this is how Nest enforces module encapsulation.
+  exports: [TasksService],
 })
 export class TasksModule {}
