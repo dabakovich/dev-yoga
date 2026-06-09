@@ -1,17 +1,4 @@
 {
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/agent-log-checkpoint.sh\"",
-            "statusMessage": "agent-log: checking for a checkpoint to log"
-          }
-        ]
-      }
-    ]
-  },
   "enabledPlugins": {
     "expo@claude-plugins-official": true
   }
