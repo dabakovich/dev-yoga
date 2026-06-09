@@ -54,3 +54,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 ## 2026-06-09
 
 - `edit` Added `AppLightTheme`/`AppDarkTheme` to `theme.ts` derived from `Colors` palette; wired into root `ThemeProvider` so nav headers and screen backgrounds match the app palette; cleared task-detail dynamic title; removed redundant `Pressable` wrapper from `TaskCard`; fixed `Link.MenuAction` child syntax.
+- `scaffold` Installed Redux Toolkit, react-redux, redux-persist, react-native-mmkv (v4) for offline-first state management; created `src/store/mmkv.ts` MMKV-backed redux-persist storage adapter.
