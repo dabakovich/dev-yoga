@@ -1,38 +1,23 @@
-import { useCallback, useReducer, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   FlatList,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   StyleSheet,
+  TextInput,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Host, HStack, TextField, useNativeState } from '@expo/ui/swift-ui';
-import type { TextFieldRef } from '@expo/ui/swift-ui';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { useAppDispatch, useAppSelector } from '@/store';
+import { appendMessage, clearChat, selectMessages } from '@/store/chat-slice';
+import type { StoredMessage } from '@/store/chat-slice';
 import { useSendChatMutation } from '@/store/chat-api';
 import type { ChatMessage } from '@/utils/api';
-
-// ── Transcript reducer ────────────────────────────────────────────────────────
-
-type TranscriptAction =
-  | { type: 'append'; message: ChatMessage }
-  | { type: 'replace_last'; message: ChatMessage };
-
-function transcriptReducer(state: ChatMessage[], action: TranscriptAction): ChatMessage[] {
-  switch (action.type) {
-    case 'append':
-      return [...state, action.message];
-    case 'replace_last':
-      return [...state.slice(0, -1), action.message];
-    default:
-      return state;
-  }
-}
 
 // ── Quick-reply chips ─────────────────────────────────────────────────────────
 
@@ -44,7 +29,7 @@ function MessageBubble({
   message,
   theme,
 }: {
-  message: ChatMessage;
+  message: StoredMessage;
   theme: ReturnType<typeof useTheme>;
 }) {
   const isUser = message.role === 'user';
@@ -65,32 +50,49 @@ function MessageBubble({
   );
 }
 
+// ── Typing indicator bubble ───────────────────────────────────────────────────
+
+function TypingBubble({ theme }: { theme: ReturnType<typeof useTheme> }) {
+  return (
+    <View style={styles.bubbleAssistant}>
+      <ThemedText
+        style={[
+          styles.bubbleText,
+          { backgroundColor: theme.backgroundElement, color: theme.textSecondary },
+        ]}
+      >
+        …
+      </ThemedText>
+    </View>
+  );
+}
+
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 export default function ChatScreen() {
   const theme = useTheme();
   const { bottom } = useSafeAreaInsets();
-  const [messages, dispatch] = useReducer(transcriptReducer, []);
+  const dispatch = useAppDispatch();
+  const messages = useAppSelector(selectMessages);
   const [sendChat, { isLoading }] = useSendChatMutation();
-
-  // Native-owned text for the @expo/ui TextField. JS mirror kept in sync via
-  // onTextChange so we can gate the send button and read the value on submit.
-  const draft = useNativeState('');
-  const fieldRef = useRef<TextFieldRef>(null);
   const [draftText, setDraftText] = useState('');
+  const listRef = useRef<FlatList>(null);
+
+  const scrollToEnd = useCallback(() => {
+    requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
+  }, []);
 
   const handleSend = useCallback(async () => {
     const text = draftText.trim();
     if (!text || isLoading) return;
 
     const userMessage: ChatMessage = { role: 'user', content: text };
-    const nextMessages = [...messages, userMessage];
+    const nextMessages: ChatMessage[] = [
+      ...messages.map(({ role, content }) => ({ role, content })),
+      userMessage,
+    ];
 
-    dispatch({ type: 'append', message: userMessage });
-    dispatch({ type: 'append', message: { role: 'assistant', content: '…' } });
-
-    // Clear the input.
-    fieldRef.current?.clear();
+    dispatch(appendMessage({ role: 'user', content: text }));
     setDraftText('');
 
     try {
@@ -101,24 +103,26 @@ export default function ChatScreen() {
         const noun = result.createdTasks.length === 1 ? 'task' : 'tasks';
         reply += `\n\n✅ Created ${result.createdTasks.length} ${noun}: ${names}`;
       }
-      dispatch({ type: 'replace_last', message: { role: 'assistant', content: reply } });
+      dispatch(appendMessage({ role: 'assistant', content: reply }));
     } catch {
-      dispatch({
-        type: 'replace_last',
-        message: { role: 'assistant', content: 'Something went wrong. Please try again.' },
-      });
+      dispatch(appendMessage({ role: 'assistant', content: 'Something went wrong. Please try again.' }));
     }
-  }, [draftText, isLoading, messages, sendChat]);
+  }, [draftText, isLoading, messages, sendChat, dispatch]);
 
   const handleChip = useCallback((chip: string) => {
     setDraftText(chip);
-    // Sets the native TextField value; triggers onTextChange to keep the JS
-    // mirror in sync on the next native event (but we set it above proactively).
-    fieldRef.current?.setText(chip);
   }, []);
 
   const isEmpty = messages.length === 0;
   const canSend = draftText.trim().length > 0 && !isLoading;
+
+  // Natural order (oldest first). We avoid `inverted` because it applies a
+  // scaleY(-1) transform that flips the native large-title scroll-edge fade.
+  // Instead the list is pinned to the bottom via the content container style
+  // and we scroll to the end whenever content grows.
+  const listData: (StoredMessage | 'typing')[] = isLoading
+    ? [...messages, 'typing']
+    : messages;
 
   return (
     <KeyboardAvoidingView
@@ -126,13 +130,8 @@ export default function ChatScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       keyboardVerticalOffset={bottom + 90}
     >
-      {/* Message list */}
-      <FlatList
-        data={messages}
-        keyExtractor={(_, i) => String(i)}
-        renderItem={({ item }) => <MessageBubble message={item} theme={theme} />}
-        contentContainerStyle={[styles.list, isEmpty && styles.listEmpty]}
-        ListEmptyComponent={
+      {isEmpty ? (
+        <View style={styles.emptyWrapper}>
           <View style={styles.emptyContainer}>
             <ThemedText type="subtitle" style={styles.emptyTitle}>
               Dev Assistant
@@ -141,22 +140,34 @@ export default function ChatScreen() {
               Ask me to create, triage, or plan your tasks.
             </ThemedText>
           </View>
-        }
-      />
-
-      {/* Quick-reply chips — only when no messages yet */}
-      {isEmpty && (
-        <View style={styles.chips}>
-          {QUICK_CHIPS.map((chip) => (
-            <Pressable
-              key={chip}
-              onPress={() => handleChip(chip)}
-              style={[styles.chip, { backgroundColor: theme.backgroundElement }]}
-            >
-              <ThemedText type="small">{chip}</ThemedText>
-            </Pressable>
-          ))}
+          <View style={styles.chips}>
+            {QUICK_CHIPS.map((chip) => (
+              <Pressable
+                key={chip}
+                onPress={() => handleChip(chip)}
+                style={[styles.chip, { backgroundColor: theme.backgroundElement }]}
+              >
+                <ThemedText type="small">{chip}</ThemedText>
+              </Pressable>
+            ))}
+          </View>
         </View>
+      ) : (
+        <FlatList
+          ref={listRef}
+          data={listData}
+          keyExtractor={(item, i) => (item === 'typing' ? 'typing' : item.id ?? String(i))}
+          renderItem={({ item }) =>
+            item === 'typing' ? (
+              <TypingBubble theme={theme} />
+            ) : (
+              <MessageBubble message={item} theme={theme} />
+            )
+          }
+          contentContainerStyle={styles.list}
+          contentInsetAdjustmentBehavior="automatic"
+          onContentSizeChange={scrollToEnd}
+        />
       )}
 
       {/* Input bar */}
@@ -170,17 +181,23 @@ export default function ChatScreen() {
           },
         ]}
       >
-        <Host matchContents style={styles.fieldHost}>
-          <HStack spacing={0}>
-            <TextField
-              ref={fieldRef}
-              text={draft}
-              placeholder="Ask the agent…"
-              axis="vertical"
-              onTextChange={setDraftText}
-            />
-          </HStack>
-        </Host>
+        <TextInput
+          style={[
+            styles.textInput,
+            {
+              backgroundColor: theme.backgroundElement,
+              color: theme.text,
+            },
+          ]}
+          value={draftText}
+          onChangeText={setDraftText}
+          placeholder="Ask the agent…"
+          placeholderTextColor={theme.textSecondary}
+          multiline
+          onSubmitEditing={handleSend}
+          submitBehavior="blurAndSubmit"
+          returnKeyType="send"
+        />
         <Pressable
           onPress={handleSend}
           disabled={!canSend}
@@ -197,19 +214,16 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  list: {
-    padding: Spacing.three,
-    gap: Spacing.two,
-    flexGrow: 1,
-  },
-  listEmpty: {
+  emptyWrapper: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    gap: Spacing.four,
+    paddingHorizontal: Spacing.four,
   },
   emptyContainer: {
     alignItems: 'center',
     gap: Spacing.two,
-    paddingHorizontal: Spacing.four,
   },
   emptyTitle: {
     marginBottom: Spacing.one,
@@ -218,26 +232,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: Spacing.two,
-    paddingHorizontal: Spacing.three,
-    paddingBottom: Spacing.two,
     justifyContent: 'center',
   },
   chip: {
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
     borderRadius: 20,
-    borderCurve: 'continuous',
   },
-  inputBar: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.two,
+  list: {
+    flexGrow: 1,
+    justifyContent: 'flex-end',
+    padding: Spacing.three,
     gap: Spacing.two,
-  },
-  fieldHost: {
-    flex: 1,
   },
   bubble: {
     maxWidth: '80%',
@@ -252,10 +258,26 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.two,
     paddingHorizontal: Spacing.three,
     borderRadius: 18,
-    borderCurve: 'continuous',
     overflow: 'hidden',
     fontSize: 15,
     lineHeight: 21,
+  },
+  inputBar: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    paddingHorizontal: Spacing.three,
+    paddingVertical: Spacing.two,
+    gap: Spacing.two,
+  },
+  textInput: {
+    flex: 1,
+    paddingVertical: Spacing.two,
+    paddingHorizontal: Spacing.three,
+    borderRadius: 18,
+    fontSize: 15,
+    lineHeight: 21,
+    maxHeight: 120,
   },
   sendButton: {
     width: 36,

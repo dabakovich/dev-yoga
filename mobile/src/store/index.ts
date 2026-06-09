@@ -15,11 +15,13 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 
 import { reduxStorage } from './mmkv';
 import filtersReducer from './filters-slice';
+import chatReducer from './chat-slice';
 import { tasksApi } from './tasks-api';
 import { chatApi } from './chat-api';
 
 const rootReducer = combineReducers({
   filters: filtersReducer,
+  chat: chatReducer,
   [tasksApi.reducerPath]: tasksApi.reducer,
   [chatApi.reducerPath]: chatApi.reducer,
 });
@@ -28,7 +30,7 @@ const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>(
   {
     key: 'root',
     storage: reduxStorage,
-    whitelist: ['filters', tasksApi.reducerPath],
+    whitelist: ['filters', 'chat', tasksApi.reducerPath],
     stateReconciler: autoMergeLevel1,
   },
   rootReducer
