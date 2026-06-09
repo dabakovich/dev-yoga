@@ -16,10 +16,12 @@ import { setupListeners } from '@reduxjs/toolkit/query';
 import { reduxStorage } from './mmkv';
 import filtersReducer from './filters-slice';
 import { tasksApi } from './tasks-api';
+import { chatApi } from './chat-api';
 
 const rootReducer = combineReducers({
   filters: filtersReducer,
   [tasksApi.reducerPath]: tasksApi.reducer,
+  [chatApi.reducerPath]: chatApi.reducer,
 });
 
 const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>(
@@ -39,7 +41,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(tasksApi.middleware),
+    }).concat(tasksApi.middleware, chatApi.middleware),
 });
 
 export const persistor = persistStore(store);

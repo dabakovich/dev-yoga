@@ -31,3 +31,20 @@ export interface TaskQuery {
   sortBy?: SortBy;
   sortOrder?: SortOrder;
 }
+
+// Chat types — mirrors backend ChatRequestDto / ChatResult.
+export type ChatRole = 'user' | 'assistant';
+
+export interface ChatMessage {
+  role: ChatRole;
+  content: string;
+}
+
+export interface ChatRequest {
+  messages: ChatMessage[];
+}
+
+export interface ChatResult {
+  reply: string;
+  createdTasks: Task[];
+}
