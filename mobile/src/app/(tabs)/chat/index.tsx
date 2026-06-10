@@ -147,13 +147,10 @@ export default function ChatScreen() {
   const isEmpty = messages.length === 0;
   const canSend = draftText.trim().length > 0 && !isLoading;
 
-  // Natural order (oldest first). We avoid `inverted` because it applies a
-  // scaleY(-1) transform that flips the native large-title scroll-edge fade.
-  // Instead the list is pinned to the bottom via the content container style
-  // and we scroll to the end whenever content grows.
-  const listData: (StoredMessage | 'typing')[] = isLoading
-    ? [...messages, 'typing']
-    : messages;
+  // The list is `inverted`, so index 0 renders at the bottom. We feed it the
+  // messages newest-first; the typing bubble rides in the list header which,
+  // being inverted, sits at the very bottom below the freshest message.
+  const listData = [...messages].reverse();
 
   return (
     <>
@@ -209,14 +206,9 @@ export default function ChatScreen() {
           <FlatList
             ref={listRef}
             data={listData}
-            keyExtractor={(item, i) => (item === 'typing' ? 'typing' : item.id ?? String(i))}
-            renderItem={({ item }) =>
-              item === 'typing' ? (
-                <TypingBubble theme={theme} />
-              ) : (
-                <MessageBubble message={item} theme={theme} />
-              )
-            }
+            keyExtractor={(item, i) => item.id ?? String(i)}
+            renderItem={({ item }) => <MessageBubble message={item} theme={theme} />}
+            ListHeaderComponent={isLoading ? <TypingBubble theme={theme} /> : null}
             inverted
             contentContainerStyle={styles.list}
             contentInsetAdjustmentBehavior="automatic"
@@ -294,7 +286,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   list: {
-    flexGrow: 1,
+    // flexGrow: 1,
     justifyContent: 'flex-end',
     padding: Spacing.three,
     gap: Spacing.two,
