@@ -73,3 +73,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 ## 2026-06-10
 
 - `fix` Chat input bar hid behind the keyboard: set `keyboardVerticalOffset` to the native Stack header height (via `useHeaderHeight` from expo-router's bundled `@react-navigation/elements`, not a standalone install — that would spawn a second `HeaderHeightContext` returning 0).
+- `scaffold` Added a destructive trash button to the Chat header (`headerRight` via `Stack.Screen`) that confirms via `Alert` then dispatches the existing `clearChat` action; hidden when the transcript is empty. Reused the `@expo/ui/swift-ui` `Button`/`Host` header-button pattern from the Tasks tab.
