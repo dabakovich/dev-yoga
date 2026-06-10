@@ -1,5 +1,9 @@
+import { Button, Host } from '@expo/ui/swift-ui';
+import { font, labelStyle, padding } from '@expo/ui/swift-ui/modifiers';
+import { Stack } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
+  Alert,
   FlatList,
   Keyboard,
   KeyboardAvoidingView,
@@ -111,6 +115,9 @@ export default function ChatScreen() {
     setDraftText('');
 
     try {
+      console.log(nextMessages);
+
+
       const result = await sendChat({ messages: nextMessages }).unwrap();
       let reply = result.reply;
       if (result.createdTasks.length > 0) {
@@ -128,6 +135,15 @@ export default function ChatScreen() {
     setDraftText(chip);
   }, []);
 
+  // Clearing wipes the persisted transcript and can't be undone, so confirm
+  // first — mirroring the task-delete flow in use-delete-confirm.
+  const handleClear = useCallback(() => {
+    Alert.alert('Clear chat history?', 'This cannot be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Clear', style: 'destructive', onPress: () => dispatch(clearChat()) },
+    ]);
+  }, [dispatch]);
+
   const isEmpty = messages.length === 0;
   const canSend = draftText.trim().length > 0 && !isLoading;
 
@@ -140,91 +156,111 @@ export default function ChatScreen() {
     : messages;
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.root, { backgroundColor: theme.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      // The view sits below the native Stack header; without this offset iOS
-      // miscomputes the keyboard overlap and the input bar hides behind the
-      // keyboard.
-      keyboardVerticalOffset={headerHeight}
-    >
-      {isEmpty ? (
-        <View style={styles.emptyWrapper}>
-          <View style={styles.emptyContainer}>
-            <ThemedText type="subtitle" style={styles.emptyTitle}>
-              Dev Assistant
-            </ThemedText>
-            <ThemedText type="default" style={{ color: theme.textSecondary, textAlign: 'center' }}>
-              Ask me to create, triage, or plan your tasks.
-            </ThemedText>
-          </View>
-          <View style={styles.chips}>
-            {QUICK_CHIPS.map((chip) => (
-              <Pressable
-                key={chip}
-                onPress={() => handleChip(chip)}
-                style={[styles.chip, { backgroundColor: theme.backgroundElement }]}
-              >
-                <ThemedText type="small">{chip}</ThemedText>
-              </Pressable>
-            ))}
-          </View>
-        </View>
-      ) : (
-        <FlatList
-          ref={listRef}
-          data={listData}
-          keyExtractor={(item, i) => (item === 'typing' ? 'typing' : item.id ?? String(i))}
-          renderItem={({ item }) =>
-            item === 'typing' ? (
-              <TypingBubble theme={theme} />
-            ) : (
-              <MessageBubble message={item} theme={theme} />
-            )
-          }
-          inverted
-          contentContainerStyle={styles.list}
-          contentInsetAdjustmentBehavior="automatic"
-        />
-      )}
+    <>
+      {/* Header trash button — hidden while there's nothing to clear. */}
+      <Stack.Screen
+        options={{
+          headerRight: () =>
+            isEmpty ? null : (
+              <Host matchContents>
+                <Button
+                  label="Clear chat"
+                  systemImage="trash"
+                  role="destructive"
+                  modifiers={[labelStyle('iconOnly'), font({ size: 20 }), padding({ all: 4 })]}
+                  onPress={handleClear}
+                />
+              </Host>
+            ),
+        }}
+      />
 
-      {/* Input bar */}
-      <View
-        style={[
-          styles.inputBar,
-          {
-            backgroundColor: theme.background,
-            borderTopColor: theme.backgroundSelected,
-            paddingBottom: keyboardVisible ? Spacing.two : bottom + Spacing.two,
-          },
-        ]}
+      <KeyboardAvoidingView
+        style={[styles.root, { backgroundColor: theme.background }]}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        // The view sits below the native Stack header; without this offset iOS
+        // miscomputes the keyboard overlap and the input bar hides behind the
+        // keyboard.
+        keyboardVerticalOffset={headerHeight}
       >
-        <TextInput
+        {isEmpty ? (
+          <View style={styles.emptyWrapper}>
+            <View style={styles.emptyContainer}>
+              <ThemedText type="subtitle" style={styles.emptyTitle}>
+                Dev Assistant
+              </ThemedText>
+              <ThemedText type="default" style={{ color: theme.textSecondary, textAlign: 'center' }}>
+                Ask me to create, triage, or plan your tasks.
+              </ThemedText>
+            </View>
+            <View style={styles.chips}>
+              {QUICK_CHIPS.map((chip) => (
+                <Pressable
+                  key={chip}
+                  onPress={() => handleChip(chip)}
+                  style={[styles.chip, { backgroundColor: theme.backgroundElement }]}
+                >
+                  <ThemedText type="small">{chip}</ThemedText>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        ) : (
+          <FlatList
+            ref={listRef}
+            data={listData}
+            keyExtractor={(item, i) => (item === 'typing' ? 'typing' : item.id ?? String(i))}
+            renderItem={({ item }) =>
+              item === 'typing' ? (
+                <TypingBubble theme={theme} />
+              ) : (
+                <MessageBubble message={item} theme={theme} />
+              )
+            }
+            inverted
+            contentContainerStyle={styles.list}
+            contentInsetAdjustmentBehavior="automatic"
+          />
+        )}
+
+        {/* Input bar */}
+        <View
           style={[
-            styles.textInput,
+            styles.inputBar,
             {
-              backgroundColor: theme.backgroundElement,
-              color: theme.text,
+              backgroundColor: theme.background,
+              borderTopColor: theme.backgroundSelected,
+              paddingBottom: keyboardVisible ? Spacing.two : bottom + Spacing.two,
             },
           ]}
-          value={draftText}
-          onChangeText={setDraftText}
-          placeholder="Ask the agent…"
-          placeholderTextColor={theme.textSecondary}
-          multiline
-          onSubmitEditing={handleSend}
-          submitBehavior="blurAndSubmit"
-          returnKeyType="send"
-        />
-        <Pressable
-          onPress={handleSend}
-          disabled={!canSend}
-          style={[styles.sendButton, { opacity: canSend ? 1 : 0.4 }]}
         >
-          <ThemedText style={styles.sendIcon}>↑</ThemedText>
-        </Pressable>
-      </View>
-    </KeyboardAvoidingView>
+          <TextInput
+            style={[
+              styles.textInput,
+              {
+                backgroundColor: theme.backgroundElement,
+                color: theme.text,
+              },
+            ]}
+            value={draftText}
+            onChangeText={setDraftText}
+            placeholder="Ask the agent…"
+            placeholderTextColor={theme.textSecondary}
+            multiline
+            onSubmitEditing={handleSend}
+            submitBehavior="blurAndSubmit"
+            returnKeyType="send"
+          />
+          <Pressable
+            onPress={handleSend}
+            disabled={!canSend}
+            style={[styles.sendButton, { opacity: canSend ? 1 : 0.4 }]}
+          >
+            <ThemedText style={styles.sendIcon}>↑</ThemedText>
+          </Pressable>
+        </View>
+      </KeyboardAvoidingView>
+    </>
   );
 }
 
