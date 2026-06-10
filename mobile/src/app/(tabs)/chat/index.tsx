@@ -1,6 +1,7 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FlatList,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -9,6 +10,11 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+// Import from expo-router's bundled copy of @react-navigation/elements rather
+// than installing the package standalone — that would create a second
+// HeaderHeightContext and the hook would return the fallback default (0)
+// instead of the real header height provided by the Stack.
+import { useHeaderHeight } from 'expo-router/build/react-navigation/elements';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
@@ -72,14 +78,23 @@ function TypingBubble({ theme }: { theme: ReturnType<typeof useTheme> }) {
 export default function ChatScreen() {
   const theme = useTheme();
   const { bottom } = useSafeAreaInsets();
+  const headerHeight = useHeaderHeight();
   const dispatch = useAppDispatch();
   const messages = useAppSelector(selectMessages);
   const [sendChat, { isLoading }] = useSendChatMutation();
   const [draftText, setDraftText] = useState('');
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const listRef = useRef<FlatList>(null);
 
-  const scrollToEnd = useCallback(() => {
-    requestAnimationFrame(() => listRef.current?.scrollToEnd({ animated: true }));
+  // The home-indicator inset is only needed when the keyboard is hidden; once
+  // it's up, the keyboard covers that area so the extra padding is dead space.
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardWillShow', () => setKeyboardVisible(true));
+    const hide = Keyboard.addListener('keyboardWillHide', () => setKeyboardVisible(false));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
   }, []);
 
   const handleSend = useCallback(async () => {
@@ -128,7 +143,10 @@ export default function ChatScreen() {
     <KeyboardAvoidingView
       style={[styles.root, { backgroundColor: theme.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={bottom + 90}
+      // The view sits below the native Stack header; without this offset iOS
+      // miscomputes the keyboard overlap and the input bar hides behind the
+      // keyboard.
+      keyboardVerticalOffset={headerHeight}
     >
       {isEmpty ? (
         <View style={styles.emptyWrapper}>
@@ -164,9 +182,9 @@ export default function ChatScreen() {
               <MessageBubble message={item} theme={theme} />
             )
           }
+          inverted
           contentContainerStyle={styles.list}
           contentInsetAdjustmentBehavior="automatic"
-          onContentSizeChange={scrollToEnd}
         />
       )}
 
@@ -177,7 +195,7 @@ export default function ChatScreen() {
           {
             backgroundColor: theme.background,
             borderTopColor: theme.backgroundSelected,
-            paddingBottom: bottom + Spacing.two,
+            paddingBottom: keyboardVisible ? Spacing.two : bottom + Spacing.two,
           },
         ]}
       >
