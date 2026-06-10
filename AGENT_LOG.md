@@ -69,3 +69,7 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `manual` Removed Stop hook (agent-log-checkpoint.sh) from `.claude/settings.json` — hook was auto-logging AI collaboration on session end.
 - `scaffold` Moved the chat transcript off local `useReducer` onto a persisted Redux `chat-slice` (`appendMessage`/`clearChat`/`selectMessages`, MMKV-whitelisted) so conversations survive app restarts.
 - `fix` Chat list rendered in wrong order / native large-title fade looked broken: replaced the `inverted` FlatList (its `scaleY(-1)` transform flipped the iOS large-title scroll-edge fade) with a bottom-pinned non-inverted list — `flexGrow:1` + `justifyContent:'flex-end'` content container, natural message order, auto-`scrollToEnd` on content growth.
+
+## 2026-06-10
+
+- `fix` Chat input bar hid behind the keyboard: set `keyboardVerticalOffset` to the native Stack header height (via `useHeaderHeight` from expo-router's bundled `@react-navigation/elements`, not a standalone install — that would spawn a second `HeaderHeightContext` returning 0).
