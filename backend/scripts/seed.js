@@ -21,53 +21,78 @@ if (clean) {
 }
 
 const insert = db.prepare(`
-  INSERT INTO task (id, title, description, status, createdAt, updatedAt)
-  VALUES (?, ?, ?, ?, ?, ?)
+  INSERT INTO task (id, title, description, status, priority, createdAt, updatedAt)
+  VALUES (?, ?, ?, ?, ?, ?, ?)
 `);
 
 const now = new Date().toISOString();
 
 const tasks = [
   {
-    title: 'Morning yoga session',
-    description: 'Sun salutations + 20 min flow. Focus on hip openers.',
+    title: 'Set up NestJS backend scaffold',
+    description: 'Initialize NestJS 11 with TypeORM + better-sqlite3, configure validation pipe.',
     status: 'done',
+    priority: 'high',
   },
   {
-    title: 'Breathing exercises (Pranayama)',
-    description: 'Nadi Shodhana — alternate nostril breathing, 10 rounds.',
+    title: 'Implement Tasks CRUD API',
+    description: 'Build REST endpoints: GET /tasks, POST, PATCH, DELETE with DTO validation.',
     status: 'done',
+    priority: 'high',
   },
   {
-    title: 'Meditation — body scan',
-    description: 'Guided 15-minute body scan before sleep.',
+    title: 'Initialize Expo SDK 56 mobile app',
+    description: 'Set up Expo Router with native tabs, TypeScript, RTK Query + Redux Toolkit.',
+    status: 'done',
+    priority: 'high',
+  },
+  {
+    title: 'Add status filter & sort to GET /tasks',
+    description: '?status=, ?sortBy=createdAt|priority, ?sortOrder=asc|desc with QueryBuilder CASE ranking.',
+    status: 'done',
+    priority: 'medium',
+  },
+  {
+    title: 'Build AI chat agent (Stage 0)',
+    description: 'POST /ai/chat with Vercel AI SDK, create_tasks tool, system-prompt gating for clarify→decompose→confirm.',
     status: 'in_progress',
+    priority: 'high',
   },
   {
-    title: 'Prepare yoga mat and props',
-    description: null,
-    status: 'in_progress',
+    title: 'Implement list_tasks, update_task, delete_task tools',
+    description: 'Expand agent toolset with read/update/delete operations, id-resolution via list_tasks.',
+    status: 'done',
+    priority: 'high',
   },
   {
-    title: 'Evening stretching routine',
-    description: 'Yin yoga — 5 poses held for 3 minutes each.',
+    title: 'Add agent memory (remember/forget tools)',
+    description: 'MemoryFact entity, durable facts in SQLite, folded into system prompt, word-overlap matching for forget.',
+    status: 'done',
+    priority: 'medium',
+  },
+  {
+    title: 'Write submission docs & READMEs',
+    description: 'Root README with quick start, architecture, AI features. Backend/mobile READMEs with setup & conventions.',
+    status: 'done',
+    priority: 'high',
+  },
+  {
+    title: 'Optional: Implement quick reply suggestions',
+    description: 'suggest_quick_replies no-op tool for UX polish; chip buttons on mobile chat screen.',
     status: 'todo',
+    priority: 'low',
   },
   {
-    title: 'Watch advanced backbend tutorial',
-    description: 'YouTube — Wheel Pose step-by-step.',
+    title: 'Optional: Add status generator tool',
+    description: 'Generate a daily standup/status update from current task state; mobile shows it inline.',
     status: 'todo',
-  },
-  {
-    title: 'Book yoga retreat for July',
-    description: null,
-    status: 'todo',
+    priority: 'low',
   },
 ];
 
 const seedMany = db.transaction((items) => {
   for (const t of items) {
-    insert.run(randomUUID(), t.title, t.description ?? null, t.status, now, now);
+    insert.run(randomUUID(), t.title, t.description ?? null, t.status, t.priority ?? 'medium', now, now);
   }
 });
 
