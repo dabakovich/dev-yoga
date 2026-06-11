@@ -7,8 +7,8 @@ doesn't duplicate them.
 ## What this is
 
 **DevYoga** — a task tracker for developers with an AI agent layer built into the
-product. It's David's take-home test task for **Holywater** (Senior React Native
-role), so it is graded on two axes — optimize for both:
+product. This is a take-home test task (Senior React Native role), graded on two
+axes — optimize for both:
 
 1. **How naturally a coding agent (you) is used in the dev process** — captured in
    [AGENT_LOG.md](AGENT_LOG.md), maintained proactively via the `agent-log` skill.
@@ -121,7 +121,7 @@ Point the app at the backend via `EXPO_PUBLIC_API_BASE` (defaults to
   push only when asked. Co-author trailer: `Co-Authored-By: Claude ...`.
 - **Library/API docs**: fetch current docs via Context7 (`find-docs` / `ctx7`)
   before writing library code or config — Expo SDK 56 and NestJS 11 are recent.
-- **NestJS is new to David** — explain the under-the-hood (DI, decorators, request
-  pipeline) alongside backend changes. Code comments here lean explanatory by design.
+- **Explain NestJS patterns** — include under-the-hood context (DI, decorators,
+  request pipeline) alongside backend changes. Code comments lean explanatory by design.
 - **Stay proactive** — suggest ideas and next steps, don't just execute literally.
 - Postman work uses the **DevYoga** workspace (`347ffdcb-c4f0-49c1-a69d-28324ea8d00c`).

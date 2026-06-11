@@ -20,7 +20,7 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `chore` Wired a global `ValidationPipe` (whitelist + transform) and `.env`/`.env.example` for DB config.
 - `review` Verified end-to-end: build clean, CRUD smoke test passes, validation returns 400, baseline tests green.
 - `edit` Refined the `agent-log` skill: never log the commit/revert action itself — log the work it captures.
-- `decision` David chose to use the Expo plugin/skills for further mobile app development.
+- `decision` Chose to use Expo plugin/skills for further mobile app development.
 - `scaffold` Created `backend/scripts/seed.js` — bare better-sqlite3 seed with 7 sample tasks across all statuses; added `npm run seed` and `seed:clean` scripts.
 - `config` Added Postman MCP server (`postman-mcp-server`) to global Claude Code config via `claude mcp add`.
 - `scaffold` Created "DevYoga API" Postman collection in the DevYoga workspace with a `GET /tasks` "Get All Tasks" request; saved workspace ID to project memory.
@@ -28,10 +28,10 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `review` Agent reviewed initialized mobile code against vercel-react-native-skills; identified list perf, missing StyleSheet.create, and unstable callback issues.
 - `edit` Applied review fixes: memoized TaskCard, extracted TaskItem + EmptyState from FlatList renderItem, hoisted all styles to StyleSheet.create, wrapped onSubmit/handleSubmit/status handlers in useCallback; lint clean.
 - `edit` Removed 11 Expo template leftover assets (react-logo, expo-badge, tabIcons, tutorial-web, logo-glow); kept only the 9 files referenced in app.json.
-- `decision` Switched mobile off Expo Go to a local dev build (`expo-dev-client`) — needed for native modules (`@expo/ui`, `expo-glass-effect`); kept it local-only since David has no paid Apple Developer account.
+- `decision` Switched mobile off Expo Go to a local dev build (`expo-dev-client`) — needed for native modules (`@expo/ui`, `expo-glass-effect`); kept it local-only due to Apple Developer account constraints.
 - `scaffold` Added `expo-dev-client` (~56.0.19) and built/ran the iOS Simulator dev build via `expo run:ios`; verified the app + dev-launcher render on the booted iPhone 17 sim.
 - `edit` Pointed `npm start` at `expo start --dev-client` and rewrote the README around the local dev-build flow (free-Apple-ID iPhone 7-day caveat, Android steps).
-- `manual` David flattened the tab route groups — `(tasks)`/`(chat)` → `index`/`chat` folders — and added the iOS bundle id + personal Apple team to app.json; agent committed it separately from the dev-build switch.
+- `manual` Flattened the tab route groups — `(tasks)`/`(chat)` → `index`/`chat` folders — and added the iOS bundle id + Apple team to app.json; committed separately from the dev-build switch.
 - `feature` Made the server address env-configurable for LAN access from a real iPhone: backend binds to `HOST` in `app.listen`, mobile reads `EXPO_PUBLIC_API_BASE` (localhost fallback); added `.env`/`.env.example` both sides and gitignored `mobile/.env`.
 
 ## 2026-06-08
