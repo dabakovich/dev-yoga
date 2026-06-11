@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { tool, type ToolSet } from 'ai';
 import { z } from 'zod';
-import { TaskPriority } from '../tasks/task.entity';
+import { SortOrder, TaskSortBy } from '../tasks/dto/find-tasks-query.dto';
+import { TaskPriority, TaskStatus } from '../tasks/task.entity';
 import { TasksService } from '../tasks/tasks.service';
 import { ChatTurnEffects } from './chat-turn.types';
 
@@ -17,6 +18,33 @@ export class AgentToolsService {
 
   build(effects: ChatTurnEffects): ToolSet {
     return {
+      list_tasks: tool({
+        description:
+          'Read the current task board. Call this whenever the user asks what to work on, wants a plan for the day, or asks about existing tasks — never answer about the board from memory. Read-only: no confirmation needed.',
+        inputSchema: z.object({
+          status: z
+            .enum(['todo', 'in_progress', 'done'])
+            .optional()
+            .describe('Filter by status; omit to get the whole board'),
+        }),
+        execute: async ({ status }) => {
+          const tasks = await this.tasksService.findAll({
+            status: status as TaskStatus | undefined,
+            sortBy: TaskSortBy.PRIORITY,
+            sortOrder: SortOrder.DESC,
+          });
+          // Compact shape so a big board doesn't blow up the context window;
+          // descriptions are truncated for the same reason.
+          return tasks.map((t) => ({
+            id: t.id,
+            title: t.title,
+            description: t.description?.slice(0, 200),
+            status: t.status,
+            priority: t.priority,
+            createdAt: t.createdAt,
+          }));
+        },
+      }),
       create_tasks: tool({
         description:
           'Create one or more tasks in the backlog. Only call this AFTER the user has explicitly confirmed a draft you previously showed them. Batch related tasks into a single call.',
