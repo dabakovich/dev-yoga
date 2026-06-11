@@ -1,5 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ChatAgentService, ChatResult } from './chat-agent.service';
+import { ChatAgentService } from './chat-agent.service';
+import { ChatResult } from './chat-turn.types';
 import { ChatRequestDto } from './dto/chat-request.dto';
 
 // `@Controller('ai')` prefixes routes here with /ai. The single POST /ai/chat
