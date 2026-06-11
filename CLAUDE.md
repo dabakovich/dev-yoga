@@ -47,19 +47,27 @@ triage. The app should ideally be good enough to help plan its own development.
 Flat monorepo — deliberately minimal (no workspaces), to avoid Expo/Metro friction
 for a short test task:
 
-- **`backend/`** — NestJS 11 + TypeORM + better-sqlite3. A Tasks CRUD REST API.
+- **`backend/`** — NestJS 11 + TypeORM + better-sqlite3. Tasks CRUD REST API +
+  the AI agent (`POST /ai/chat`). See [backend/README.md](backend/README.md).
 - **`mobile/`** — React Native + Expo SDK 56 (Expo Router). Runs as a **local dev
   build** (`expo-dev-client`), **not** Expo Go — it uses native modules. See
   [mobile/README.md](mobile/README.md) and [mobile/AGENTS.md](mobile/AGENTS.md).
+- **iOS-first** — Web and Android are out of scope for this MVP.
 
 ## Current state
 
 - ✅ Backend Tasks CRUD with status filter + sorting; global validation; seed script.
-- ✅ Mobile: task list / detail / create, native header filter + sort menus, FAB.
-- ⏳ **AI features: not built yet.** The Chat tab is a placeholder
-  ([mobile/src/app/(tabs)/chat/index.tsx](mobile/src/app/(tabs)/chat/index.tsx))
-  and the backend has no AI endpoints. This is the next and most important work —
-  see the north star.
+- ✅ Mobile: task list / detail / create, native header filter + sort menus, FAB;
+  Redux Toolkit + RTK Query, persisted via MMKV.
+- ✅ **AI layer shipped**: one conversational agent (`AiModule`, Vercel AI SDK +
+  Anthropic) with tools `list_tasks` / `create_tasks` / `update_task` /
+  `delete_task` / `remember` / `forget`; clarify→decompose→confirm gating in the
+  system prompt; "plan my day" prioritization; agent memory (durable facts in
+  SQLite); mock mode without an API key. Mobile Chat tab is a persisted,
+  device-only conversation (stateless backend).
+- ⏳ Remaining plans (optional polish): quick replies ([plans/04](plans/04-quick-replies.md)),
+  status-update generator ([plans/05](plans/05-status-generator.md)). See
+  [plans/README.md](plans/README.md) for the cut order and descoped ideas.
 
 ## Data model & API
 
@@ -77,20 +85,28 @@ REST under `/tasks` ([tasks.controller.ts](backend/src/tasks/tasks.controller.ts
 A global `ValidationPipe` (whitelist + transform) validates every DTO. The mobile
 client mirrors these types in [mobile/src/utils/api.ts](mobile/src/utils/api.ts).
 
+`POST /ai/chat` takes the full transcript (`messages[]`) each call — stateless —
+and returns the assistant text plus side-effect summaries (created/updated/deleted
+tasks, saved/forgotten memories). Mobile invalidates its task cache off those.
+
 ## Run it
+
+Full fresh-launch instructions (incl. `.env` setup and real-device LAN IP) live
+in the root [README.md](README.md) — keep that file authoritative.
 
 **Backend** (port 3000, binds `0.0.0.0` for LAN access):
 ```bash
-cd backend && npm install && npm run start:dev   # watch mode
-npm run seed                                       # 7 sample tasks (seed:clean to wipe)
+cd backend && cp .env.example .env && npm install && npm run dev   # watch mode
+npm run seed                                  # 7 sample tasks (seed:clean to wipe)
 ```
-DB schema auto-syncs only when `DB_SYNCHRONIZE=true` (see `.env.example`).
+DB schema auto-syncs only when `DB_SYNCHRONIZE=true`. No `ANTHROPIC_API_KEY` →
+the agent runs in mock mode (server still boots).
 
 **Mobile** (build the dev client once, then start Metro):
 ```bash
-cd mobile && npm install
-npm run ios          # or: npm run android — builds & installs the dev build
-npm start            # expo start --dev-client
+cd mobile && cp .env.example .env && npm install
+npm run ios          # builds & installs the dev build (iOS-first MVP)
+npm run dev          # expo start --dev-client
 ```
 Point the app at the backend via `EXPO_PUBLIC_API_BASE` (defaults to
 `http://localhost:3000`; use the Mac's LAN IP on a real device). The native
