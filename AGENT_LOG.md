@@ -74,3 +74,9 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 
 - `fix` Chat input bar hid behind the keyboard: set `keyboardVerticalOffset` to the native Stack header height (via `useHeaderHeight` from expo-router's bundled `@react-navigation/elements`, not a standalone install — that would spawn a second `HeaderHeightContext` returning 0).
 - `scaffold` Added a destructive trash button to the Chat header (`headerRight` via `Stack.Screen`) that confirms via `Alert` then dispatches the existing `clearChat` action; hidden when the transcript is empty. Reused the `@expo/ui/swift-ui` `Button`/`Host` header-button pattern from the Tasks tab.
+
+## 2026-06-11
+
+- `review` Agent reviewed backend AI architecture against David's wishlist (more tools, quick replies, today-plan, status, memory): verdict — current shape holds; everything is a new tool on the one agent, not new agents/infra.
+- `plan` Agreed the decomposition: split `chat-agent.service.ts` into orchestration + `AgentToolsService` (per-request tool factory closing over a `ChatTurnEffects` collector) + prompt file + mock service; quick replies via a no-op `suggest_quick_replies` tool, no second LLM call.
+- `decision` Prioritized remaining AI work 1–6: decompose → `list_tasks`+today-plan (meets the ≥2-features bar) → update/delete tools → quick replies → status generator → memory (first to cut); explicitly descoped on-device AI (key exposure) and update-hooks auto-reprioritization.
