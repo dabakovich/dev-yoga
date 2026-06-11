@@ -125,6 +125,14 @@ export default function ChatScreen() {
         const noun = result.createdTasks.length === 1 ? 'task' : 'tasks';
         reply += `\n\n✅ Created ${result.createdTasks.length} ${noun}: ${names}`;
       }
+      if (result.updatedTasks.length > 0) {
+        const names = result.updatedTasks.map((t) => `"${t.title}"`).join(', ');
+        reply += `\n\n✏️ Updated: ${names}`;
+      }
+      if (result.deletedTasks.length > 0) {
+        const names = result.deletedTasks.map((t) => `"${t.title}"`).join(', ');
+        reply += `\n\n🗑️ Deleted: ${names}`;
+      }
       dispatch(appendMessage({ role: 'assistant', content: reply }));
     } catch {
       dispatch(appendMessage({ role: 'assistant', content: 'Something went wrong. Please try again.' }));

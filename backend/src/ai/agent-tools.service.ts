@@ -86,6 +86,55 @@ export class AgentToolsService {
           }));
         },
       }),
+      update_task: tool({
+        description:
+          'Update an existing task (status, priority, title, or description). Resolve the task id via list_tasks first — never guess ids. Status-only changes can be applied directly when the task reference is unambiguous; for bigger edits confirm with the user first.',
+        inputSchema: z.object({
+          id: z.string().uuid().describe('Task id, taken from list_tasks'),
+          title: z.string().optional(),
+          description: z.string().optional(),
+          status: z.enum(['todo', 'in_progress', 'done']).optional(),
+          priority: z.enum(['low', 'medium', 'high']).optional(),
+        }),
+        execute: async ({ id, ...patch }) => {
+          // Return the failure as data instead of letting NotFoundException
+          // kill the whole chat request — the model can re-list and recover.
+          try {
+            const updated = await this.tasksService.update(id, {
+              ...patch,
+              status: patch.status as TaskStatus | undefined,
+              priority: patch.priority as TaskPriority | undefined,
+            });
+            effects.updatedTasks.push(updated);
+            return {
+              id: updated.id,
+              title: updated.title,
+              status: updated.status,
+              priority: updated.priority,
+            };
+          } catch {
+            return { error: `No task found with id ${id} — call list_tasks.` };
+          }
+        },
+      }),
+      delete_task: tool({
+        description:
+          'Permanently delete a task. Destructive and irreversible: only call this AFTER the user explicitly confirmed deleting this exact task in a previous turn. Resolve the id via list_tasks first.',
+        inputSchema: z.object({
+          id: z.string().uuid().describe('Task id, taken from list_tasks'),
+        }),
+        execute: async ({ id }) => {
+          try {
+            // findOne first: capture the title before the row is gone.
+            const task = await this.tasksService.findOne(id);
+            await this.tasksService.remove(id);
+            effects.deletedTasks.push({ id: task.id, title: task.title });
+            return { deleted: true, id: task.id, title: task.title };
+          } catch {
+            return { error: `No task found with id ${id} — call list_tasks.` };
+          }
+        },
+      }),
     };
   }
 }

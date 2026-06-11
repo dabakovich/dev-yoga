@@ -47,4 +47,6 @@ export interface ChatRequest {
 export interface ChatResult {
   reply: string;
   createdTasks: Task[];
+  updatedTasks: Task[];
+  deletedTasks: Pick<Task, 'id' | 'title'>[];
 }

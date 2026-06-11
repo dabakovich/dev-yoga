@@ -7,6 +7,9 @@ import { Task } from '../tasks/task.entity';
 // (updatedTasks, deletedTasks, quickReplies, ...).
 export interface ChatTurnEffects {
   createdTasks: Task[];
+  updatedTasks: Task[];
+  // Title is captured before removal so the client can still say "Deleted: X".
+  deletedTasks: Pick<Task, 'id' | 'title'>[];
 }
 
 // What the agent hands back to the controller: the assistant's final text plus
@@ -18,4 +21,6 @@ export interface ChatResult extends ChatTurnEffects {
 
 export const createChatTurnEffects = (): ChatTurnEffects => ({
   createdTasks: [],
+  updatedTasks: [],
+  deletedTasks: [],
 });

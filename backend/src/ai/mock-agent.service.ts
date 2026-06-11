@@ -33,6 +33,8 @@ export class MockAgentService {
       return {
         reply: `[mock] Created task "${created.title}". Set ANTHROPIC_API_KEY for the real triage agent.`,
         createdTasks: [created],
+        updatedTasks: [],
+        deletedTasks: [],
       };
     }
 
@@ -42,6 +44,8 @@ export class MockAgentService {
           ? `[mock] Draft: I'd create a task "${last.slice(0, 80)}" (priority: medium). Reply "yes" to confirm. (Set ANTHROPIC_API_KEY to enable the real agent.)`
           : '[mock] Tell me what task you want to create. (Set ANTHROPIC_API_KEY to enable the real agent.)',
       createdTasks: [],
+      updatedTasks: [],
+      deletedTasks: [],
     };
   }
 }
