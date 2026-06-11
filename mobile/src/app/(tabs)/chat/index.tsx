@@ -1,7 +1,8 @@
-import { Button, Host } from '@expo/ui/swift-ui';
+import { Button, Host, Menu, RNHostView } from '@expo/ui/swift-ui';
 import { font, labelStyle, padding } from '@expo/ui/swift-ui/modifiers';
 import { Stack } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import * as Clipboard from 'expo-clipboard';
 import {
   Alert,
   FlatList,
@@ -11,6 +12,7 @@ import {
   Pressable,
   StyleSheet,
   TextInput,
+  ToastAndroid,
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -43,20 +45,46 @@ function MessageBubble({
   theme: ReturnType<typeof useTheme>;
 }) {
   const isUser = message.role === 'user';
+  const bubbleText = (
+    <ThemedText
+      style={[
+        styles.bubbleText,
+        {
+          backgroundColor: isUser ? '#3c87f7' : theme.backgroundElement,
+          color: isUser ? '#ffffff' : theme.text,
+        },
+      ]}
+    >
+      {message.content}
+    </ThemedText>
+  );
+
+  if (Platform.OS === 'ios') {
+    return (
+      <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAssistant]}>
+        <Host matchContents>
+          <Menu label={<RNHostView matchContents>{bubbleText}</RNHostView>}>
+            <Button
+              label="Copy"
+              systemImage="doc.on.doc"
+              onPress={() => Clipboard.setStringAsync(message.content)}
+            />
+          </Menu>
+        </Host>
+      </View>
+    );
+  }
+
   return (
-    <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAssistant]}>
-      <ThemedText
-        style={[
-          styles.bubbleText,
-          {
-            backgroundColor: isUser ? '#3c87f7' : theme.backgroundElement,
-            color: isUser ? '#ffffff' : theme.text,
-          },
-        ]}
-      >
-        {message.content}
-      </ThemedText>
-    </View>
+    <Pressable
+      style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAssistant]}
+      onLongPress={() => {
+        Clipboard.setStringAsync(message.content);
+        ToastAndroid.show('Copied', ToastAndroid.SHORT);
+      }}
+    >
+      {bubbleText}
+    </Pressable>
   );
 }
 
