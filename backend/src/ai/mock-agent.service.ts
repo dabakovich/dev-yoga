@@ -35,6 +35,8 @@ export class MockAgentService {
         createdTasks: [created],
         updatedTasks: [],
         deletedTasks: [],
+        savedMemories: [],
+        forgotMemories: [],
       };
     }
 
@@ -46,6 +48,8 @@ export class MockAgentService {
       createdTasks: [],
       updatedTasks: [],
       deletedTasks: [],
+      savedMemories: [],
+      forgotMemories: [],
     };
   }
 }

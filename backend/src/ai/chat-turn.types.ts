@@ -10,6 +10,10 @@ export interface ChatTurnEffects {
   updatedTasks: Task[];
   // Title is captured before removal so the client can still say "Deleted: X".
   deletedTasks: Pick<Task, 'id' | 'title'>[];
+  // Durable project facts the agent saved / dropped this turn (the fact text),
+  // so the client can show a subtle "remembered"/"forgot" note.
+  savedMemories: string[];
+  forgotMemories: string[];
 }
 
 // What the agent hands back to the controller: the assistant's final text plus
@@ -23,4 +27,6 @@ export const createChatTurnEffects = (): ChatTurnEffects => ({
   createdTasks: [],
   updatedTasks: [],
   deletedTasks: [],
+  savedMemories: [],
+  forgotMemories: [],
 });

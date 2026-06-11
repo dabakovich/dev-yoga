@@ -5,6 +5,7 @@ import { SortOrder, TaskSortBy } from '../tasks/dto/find-tasks-query.dto';
 import { TaskPriority, TaskStatus } from '../tasks/task.entity';
 import { TasksService } from '../tasks/tasks.service';
 import { ChatTurnEffects } from './chat-turn.types';
+import { AgentMemoryService } from './memory/agent-memory.service';
 
 // Per-request tool factory. The service itself is a stateless singleton (Nest
 // injects TasksService once); `build(effects)` is called per chat request so
@@ -14,7 +15,10 @@ import { ChatTurnEffects } from './chat-turn.types';
 // function parameter is simpler and faster.
 @Injectable()
 export class AgentToolsService {
-  constructor(private readonly tasksService: TasksService) {}
+  constructor(
+    private readonly tasksService: TasksService,
+    private readonly memoryService: AgentMemoryService,
+  ) {}
 
   build(effects: ChatTurnEffects): ToolSet {
     return {
@@ -133,6 +137,73 @@ export class AgentToolsService {
           } catch {
             return { error: `No task found with id ${id} — call list_tasks.` };
           }
+        },
+      }),
+      remember: tool({
+        description:
+          "Save one durable project fact so it carries across conversations (stack, conventions, people/ownership, recurring constraints). Never save tasks (use create_tasks) or chit-chat. Pass a single self-contained sentence. Idempotent: a near-duplicate of an existing fact is skipped.",
+        inputSchema: z.object({
+          fact: z
+            .string()
+            .max(300)
+            .describe('One self-contained sentence stating a durable fact'),
+        }),
+        execute: async ({ fact }) => {
+          const clean = fact.trim();
+          // Cheap dedupe: skip if this fact is a substring of an existing one
+          // (or vice-versa), case-insensitive. Good enough at this scale and
+          // keeps the memory from piling up restatements of the same thing.
+          const existing = await this.memoryService.findAll();
+          const lower = clean.toLowerCase();
+          const dup = existing.find((f) => {
+            const e = f.content.toLowerCase();
+            return e.includes(lower) || lower.includes(e);
+          });
+          if (dup) {
+            return { saved: false, reason: 'already-known', fact: dup.content };
+          }
+          const created = await this.memoryService.create(clean);
+          effects.savedMemories.push(created.content);
+          return { saved: true, fact: created.content };
+        },
+      }),
+      forget: tool({
+        description:
+          'Drop a remembered project fact the user says is wrong or no longer true. Pass words from the fact you want removed (e.g. "ship Fridays" to drop "We ship on Fridays"). Use only when the user asks to forget/correct something. If nothing matches, you get the current fact list back — do NOT claim a fact was removed unless this tool returns it under "forgot".',
+        inputSchema: z.object({
+          match: z
+            .string()
+            .describe('Distinctive words from the fact(s) to remove'),
+        }),
+        execute: async ({ match }) => {
+          const existing = await this.memoryService.findAll();
+          // Significant words from the model's match phrase (>=4 chars drops
+          // "on", "the", "a"...). A fact is a hit if its text contains any of
+          // them as a substring — so "Fridays" matches the word "friday", and
+          // a brittle exact-phrase match isn't required.
+          const words = match
+            .toLowerCase()
+            .split(/[^a-z0-9]+/)
+            .filter((w) => w.length >= 4);
+          const hits = words.length
+            ? existing.filter((f) => {
+                const text = f.content.toLowerCase();
+                return words.some((w) => text.includes(w));
+              })
+            : [];
+          if (hits.length === 0) {
+            // Tell the model the truth so it can't fabricate a removal; hand it
+            // the current facts to retry with better words or report honestly.
+            return {
+              forgot: [] as string[],
+              error: 'No saved fact matched those words.',
+              currentFacts: existing.map((f) => f.content),
+            };
+          }
+          await Promise.all(hits.map((f) => this.memoryService.remove(f.id)));
+          const forgot = hits.map((f) => f.content);
+          effects.forgotMemories.push(...forgot);
+          return { forgot };
         },
       }),
     };

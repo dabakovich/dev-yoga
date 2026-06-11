@@ -5,8 +5,9 @@ import { generateText, stepCountIs } from 'ai';
 import { AgentToolsService } from './agent-tools.service';
 import { ChatResult, createChatTurnEffects } from './chat-turn.types';
 import { ChatMessageDto } from './dto/chat-request.dto';
+import { AgentMemoryService } from './memory/agent-memory.service';
 import { MockAgentService } from './mock-agent.service';
-import { DEFAULT_MODEL, SYSTEM_PROMPT } from './prompts/system-prompt';
+import { DEFAULT_MODEL, buildSystemPrompt } from './prompts/system-prompt';
 
 // Orchestration only: pick mock vs live, run the agent loop, return the turn's
 // effects. Tool definitions live in AgentToolsService, the prompt in
@@ -18,6 +19,7 @@ export class ChatAgentService {
   constructor(
     private readonly config: ConfigService,
     private readonly tools: AgentToolsService,
+    private readonly memory: AgentMemoryService,
     private readonly mockAgent: MockAgentService,
   ) {}
 
@@ -38,9 +40,15 @@ export class ChatAgentService {
     const anthropic = createAnthropic({ apiKey });
     const model = this.config.get<string>('AI_MODEL') ?? DEFAULT_MODEL;
 
+    // Fold remembered project facts into the prompt so the otherwise-stateless
+    // agent carries durable context (stack, conventions, people) across
+    // conversations. Empty memory → buildSystemPrompt omits the facts section.
+    const facts = await this.memory.findAll();
+    const system = buildSystemPrompt(facts.map((f) => f.content));
+
     const { text } = await generateText({
       model: anthropic(model),
-      system: SYSTEM_PROMPT,
+      system,
       // The client's transcript maps 1:1 onto AI SDK model messages.
       messages,
       tools: this.tools.build(effects),

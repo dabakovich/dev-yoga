@@ -161,6 +161,12 @@ export default function ChatScreen() {
         const names = result.deletedTasks.map((t) => `"${t.title}"`).join(', ');
         reply += `\n\n🗑️ Deleted: ${names}`;
       }
+      if (result.savedMemories.length > 0) {
+        reply += `\n\n🧠 Remembered: ${result.savedMemories.join('; ')}`;
+      }
+      if (result.forgotMemories.length > 0) {
+        reply += `\n\n🧠 Forgot: ${result.forgotMemories.join('; ')}`;
+      }
       dispatch(appendMessage({ role: 'assistant', content: reply }));
     } catch {
       dispatch(appendMessage({ role: 'assistant', content: 'Something went wrong. Please try again.' }));

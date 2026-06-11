@@ -25,6 +25,30 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## DevYoga AI agent
+
+The AI triage agent lives in `src/ai` and is exposed as a single `POST /ai/chat`
+endpoint (Vercel AI SDK + Anthropic). With no `ANTHROPIC_API_KEY` set it falls
+back to canned mock responses so the server still boots and demos.
+
+### Agent memory
+
+The chat agent is otherwise **stateless** (the client re-sends the full
+transcript each call), but it keeps a small store of **durable project facts**
+so suggestions carry context across conversations.
+
+- **What it stores:** one self-contained fact per row (stack, conventions,
+  people/ownership, recurring constraints) in the `memory_fact` table
+  (`{ id, content, createdAt }`). Never tasks — those belong on the board.
+- **How it works:** every `/ai/chat` request reads all facts and folds them into
+  the system prompt. The agent saves new ones via the `remember` tool (with a
+  lowercase substring dedupe) and drops stale ones via `forget`. When memory is
+  empty it offers a one-line onboarding nudge instead of injecting facts.
+- **Limits (deliberate, for a test task):** flat list, **no retrieval/ranking or
+  embeddings** (a full dump is a few hundred tokens at this scale), **single
+  user** (no per-account scoping), and no audit trail. Dedupe is a substring
+  check, not semantic — good enough here.
+
 ## Project setup
 
 ```bash

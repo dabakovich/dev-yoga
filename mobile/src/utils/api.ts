@@ -49,4 +49,7 @@ export interface ChatResult {
   createdTasks: Task[];
   updatedTasks: Task[];
   deletedTasks: Pick<Task, 'id' | 'title'>[];
+  // Durable project facts the agent saved / dropped this turn (the fact text).
+  savedMemories: string[];
+  forgotMemories: string[];
 }
