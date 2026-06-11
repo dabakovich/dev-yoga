@@ -132,9 +132,6 @@ export default function ChatScreen() {
     setDraftText('');
 
     try {
-      console.log(nextMessages);
-
-
       const result = await sendChat({ messages: nextMessages }).unwrap();
       let reply = result.reply;
       if (result.createdTasks.length > 0) {
