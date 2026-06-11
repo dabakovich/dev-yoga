@@ -1,8 +1,8 @@
-import { Button, Host, Menu, RNHostView } from '@expo/ui/swift-ui';
+import { Button, Host } from '@expo/ui/swift-ui';
 import { font, labelStyle, padding } from '@expo/ui/swift-ui/modifiers';
+import * as Clipboard from 'expo-clipboard';
 import { Stack } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import * as Clipboard from 'expo-clipboard';
 import {
   Alert,
   FlatList,
@@ -20,20 +20,21 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 // than installing the package standalone — that would create a second
 // HeaderHeightContext and the hook would return the fallback default (0)
 // instead of the real header height provided by the Stack.
+import * as Haptics from 'expo-haptics';
 import { useHeaderHeight } from 'expo-router/build/react-navigation/elements';
 
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useAppDispatch, useAppSelector } from '@/store';
-import { appendMessage, clearChat, selectMessages } from '@/store/chat-slice';
-import type { StoredMessage } from '@/store/chat-slice';
 import { useSendChatMutation } from '@/store/chat-api';
+import type { StoredMessage } from '@/store/chat-slice';
+import { appendMessage, clearChat, selectMessages } from '@/store/chat-slice';
 import type { ChatMessage } from '@/utils/api';
 
 // ── Quick-reply chips ─────────────────────────────────────────────────────────
 
-const QUICK_CHIPS = ['Create a task', 'Plan my day'];
+const QUICK_CHIPS = ['Create a task', 'Plan my day', 'What can you do?'];
 
 // ── Message bubble ────────────────────────────────────────────────────────────
 
@@ -59,28 +60,16 @@ function MessageBubble({
     </ThemedText>
   );
 
-  if (Platform.OS === 'ios') {
-    return (
-      <View style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAssistant]}>
-        <Host matchContents>
-          <Menu label={<RNHostView matchContents>{bubbleText}</RNHostView>}>
-            <Button
-              label="Copy"
-              systemImage="doc.on.doc"
-              onPress={() => Clipboard.setStringAsync(message.content)}
-            />
-          </Menu>
-        </Host>
-      </View>
-    );
-  }
 
   return (
     <Pressable
       style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAssistant]}
       onLongPress={() => {
         Clipboard.setStringAsync(message.content);
-        ToastAndroid.show('Copied', ToastAndroid.SHORT);
+
+        if (Platform.OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+        if (Platform.OS === 'android') ToastAndroid.show('Copied', ToastAndroid.SHORT);
       }}
     >
       {bubbleText}
