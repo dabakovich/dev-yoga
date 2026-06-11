@@ -8,7 +8,6 @@ The AI layer carries that grunt work; the tracker is the foundation under it.
 - **`backend/`** — NestJS 11 + TypeORM + SQLite. Tasks CRUD REST API + the AI agent (`POST /ai/chat`). [Details →](backend/README.md)
 - **`mobile/`** — React Native + Expo SDK 56 (Expo Router). Native iOS dev build. [Details →](mobile/README.md)
 - **`AGENT_LOG.md`** — honest day-by-day log of how the coding agent was used. [Read →](AGENT_LOG.md)
-- **`plans/`** — staged AI-layer plans with effort estimates and an explicit cut order. [Index →](plans/README.md)
 
 ## Quick start
 
@@ -125,8 +124,7 @@ to ask, plan, or act:
 
 ### Descoped, deliberately
 
-Ideas that didn't make the time budget, kept as honest backlog
-(see [plans/](plans/README.md) for the cut order):
+Ideas that didn't make the time budget:
 
 - Task-screen menu: generate a Slack-style status message; generate an
   agent-ready prompt for pasting into Cursor/Claude.
@@ -155,9 +153,8 @@ How the coding agent was used as an amplifier (the full story is in
   entries to AGENT_LOG.md; initially triggered by a session-end hook, later the
   hook was removed to cut overhead and the skill runs proactively.
 - **Plan first, then cheap execution** — smarter models for brainstorming and
-  high-level plans (`plans/`), cheaper models for routine code.
+  high-level plans, cheaper models for routine code.
 - **Local memory** — project memory keeps the north star and conventions in
   focus across sessions.
 - **Agents for periodic review** — code-structure reviews, decomposing
-  oversized files, refactors against best practices (e.g. the AI module
-  decomposition in plan 01).
+  oversized files, refactors against best practices.

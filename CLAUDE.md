@@ -65,9 +65,6 @@ for a short test task:
   system prompt; "plan my day" prioritization; agent memory (durable facts in
   SQLite); mock mode without an API key. Mobile Chat tab is a persisted,
   device-only conversation (stateless backend).
-- ⏳ Remaining plans (optional polish): quick replies ([plans/04](plans/04-quick-replies.md)),
-  status-update generator ([plans/05](plans/05-status-generator.md)). See
-  [plans/README.md](plans/README.md) for the cut order and descoped ideas.
 
 ## Data model & API
 
