@@ -92,3 +92,7 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `edit` Rewrote backend/README (API + env table + storage choice + agent decomposition) and mobile/README (env-first get-started, structure/state overview); refreshed mobile/AGENTS.md with orientation rules.
 - `fix` Root CLAUDE.md "Current state" was stale (claimed AI not built) — updated to reflect the shipped AI layer and the remaining optional plans (04/05).
 - `edit` Added `npm run dev` aliases to backend and mobile package.json so the brief's `npm install && npm run dev` starts both apps as-is.
+
+## 2026-06-17
+
+- `scaffold` TDD: extracted pure `formatChatReply` helper from chat screen inline logic; test written first (failed: module not found), then implementation, 4/4 passing.
