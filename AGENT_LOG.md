@@ -103,3 +103,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `decision` Dropped the plan's `active-conversation` Redux slice as unused (YAGNI): the open thread is the `[id]` route param and conversation data lives in the RTK Query cache, so nothing extra needs persisting.
 - `review` Reviewed Task 8 diff (chat-api overhaul, chat-slice deletion, formatChatReply retargeting); identified critical dead-import bug in chat/index.tsx still referencing deleted chat-slice and stale ChatMessage type.
 - `scaffold` Task 9: created `chat/[id].tsx` thread screen (send/delete/new-thread routing via `router.replace`) and updated `_layout.tsx` to register the `[id]` route; tsc clean on new files.
+- `edit` Mobile: chat tab is now a backend-backed conversation list + thread screens (RTK Query).
