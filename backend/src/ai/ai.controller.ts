@@ -4,16 +4,15 @@ import { ChatResult } from './chat-turn.types';
 import { ChatRequestDto } from './dto/chat-request.dto';
 
 // `@Controller('ai')` prefixes routes here with /ai. The single POST /ai/chat
-// endpoint is the one agentic surface for the whole product (no separate
-// "Today" screen) — see AI_PLAN.md.
+// endpoint is the one agentic surface for the whole product. It is now stateful:
+// the body carries an optional conversationId + the new message, and the agent
+// owns history persistence.
 @Controller('ai')
 export class AiController {
   constructor(private readonly chatAgent: ChatAgentService) {}
 
   @Post('chat')
   chat(@Body() dto: ChatRequestDto): Promise<ChatResult> {
-    // The body is already validated by the global ValidationPipe (the DTO's
-    // class-validator decorators). We just hand the transcript to the agent.
-    return this.chatAgent.chat(dto.messages);
+    return this.chatAgent.chat(dto);
   }
 }

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TasksModule } from '../tasks/tasks.module';
+import { ConversationsModule } from '../conversations/conversations.module';
 import { AiController } from './ai.controller';
 import { AgentToolsService } from './agent-tools.service';
 import { ChatAgentService } from './chat-agent.service';
@@ -15,7 +16,11 @@ import { MockAgentService } from './mock-agent.service';
   // forFeature registers the MemoryFact repository here (with autoLoadEntities,
   // it also creates the table) — memory is an agent concern, so it lives in
   // this module, not TasksModule.
-  imports: [TasksModule, TypeOrmModule.forFeature([MemoryFact])],
+  imports: [
+    TasksModule,
+    ConversationsModule,
+    TypeOrmModule.forFeature([MemoryFact]),
+  ],
   controllers: [AiController],
   providers: [
     ChatAgentService,
