@@ -5,7 +5,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 // than installing the package standalone — that would create a second
 // HeaderHeightContext and the hook would return 0 instead of the real height.
 import { useHeaderHeight } from 'expo-router/build/react-navigation/elements';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert, FlatList, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -33,15 +33,16 @@ export default function ChatThreadScreen() {
   // `/chat/new` is the not-yet-created thread: skip the history fetch and send
   // without a conversationId until the backend creates one.
   const isNew = id === 'new';
-  const { data: conversation } = useGetConversationQuery(id, { skip: isNew });
+  const { data: conversation, isLoading: isConversationLoading } = useGetConversationQuery(id, { skip: isNew });
   const [sendChat, { isLoading }] = useSendChatMutation();
   const [deleteConversation] = useDeleteConversationMutation();
 
   const [draftText, setDraftText] = useState('');
-  const listRef = useRef<FlatList>(null);
 
   const messages = conversation?.messages ?? [];
-  const isEmpty = messages.length === 0;
+  // Guard on isConversationLoading so the empty state doesn't flash while the
+  // conversation is being fetched (messages is [] before data arrives).
+  const isEmpty = !isNew && !isConversationLoading && messages.length === 0;
   const canSend = draftText.trim().length > 0 && !isLoading;
   // Inverted list: index 0 renders at the bottom, so feed it newest-first.
   const listData = [...messages].reverse();
@@ -111,7 +112,6 @@ export default function ChatThreadScreen() {
           <ChatEmptyState onChipPress={setDraftText} />
         ) : (
           <FlatList
-            ref={listRef}
             data={listData}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <ChatMessageBubble message={item} />}
