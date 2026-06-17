@@ -13,7 +13,7 @@ function ConversationRow({ conversation }: { conversation: ConversationSummary }
   const theme = useTheme();
   return (
     <Link href={`/chat/${conversation.id}`} asChild>
-      <Pressable style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
+      <Pressable style={StyleSheet.flatten([styles.row, { backgroundColor: theme.backgroundElement }])}>
         <ThemedText type="defaultSemiBold" numberOfLines={1}>
           {conversation.title ?? 'New conversation'}
         </ThemedText>
