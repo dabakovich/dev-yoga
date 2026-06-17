@@ -9,13 +9,8 @@ import { useTheme } from '@/hooks/use-theme';
 import { useGetConversationsQuery } from '@/store/chat-api';
 import type { ConversationSummary } from '@/utils/api';
 
-function ConversationRow({
-  conversation,
-  theme,
-}: {
-  conversation: ConversationSummary;
-  theme: ReturnType<typeof useTheme>;
-}) {
+function ConversationRow({ conversation }: { conversation: ConversationSummary }) {
+  const theme = useTheme();
   return (
     <Link href={`/chat/${conversation.id}`} asChild>
       <Pressable style={[styles.row, { backgroundColor: theme.backgroundElement }]}>
@@ -33,7 +28,7 @@ function ConversationRow({
 export default function ConversationListScreen() {
   const theme = useTheme();
   const router = useRouter();
-  const { data: conversations = [], isLoading } = useGetConversationsQuery();
+  const { data: conversations = [], isLoading, isError } = useGetConversationsQuery();
 
   return (
     <>
@@ -52,7 +47,14 @@ export default function ConversationListScreen() {
         }}
       />
 
-      {conversations.length === 0 && !isLoading ? (
+      {isError ? (
+        <View style={[styles.empty, { backgroundColor: theme.background }]}>
+          <ThemedText type="subtitle">Could not load conversations</ThemedText>
+          <ThemedText type="default" style={{ color: theme.textSecondary, textAlign: 'center' }}>
+            Check that the backend is running and try again.
+          </ThemedText>
+        </View>
+      ) : conversations.length === 0 && !isLoading ? (
         <View style={[styles.empty, { backgroundColor: theme.background }]}>
           <ThemedText type="subtitle">No conversations yet</ThemedText>
           <ThemedText type="default" style={{ color: theme.textSecondary, textAlign: 'center' }}>
@@ -64,7 +66,7 @@ export default function ConversationListScreen() {
           style={{ backgroundColor: theme.background }}
           data={conversations}
           keyExtractor={(c) => c.id}
-          renderItem={({ item }) => <ConversationRow conversation={item} theme={theme} />}
+          renderItem={({ item }) => <ConversationRow conversation={item} />}
           contentContainerStyle={styles.list}
           contentInsetAdjustmentBehavior="automatic"
         />
