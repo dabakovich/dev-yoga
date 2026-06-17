@@ -2,13 +2,18 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { REHYDRATE } from 'redux-persist';
 
 import { API_BASE } from '@/constants/api';
-import type { ChatRequest, ChatResult } from '@/utils/api';
+import type {
+  ChatRequest,
+  ChatResult,
+  Conversation,
+  ConversationSummary,
+} from '@/utils/api';
 import { tasksApi } from './tasks-api';
 
 export const chatApi = createApi({
   reducerPath: 'chatApi',
   baseQuery: fetchBaseQuery({ baseUrl: API_BASE }),
-  tagTypes: [],
+  tagTypes: ['Conversation'],
 
   extractRehydrationInfo(action, { reducerPath }) {
     if (action.type === REHYDRATE) {
@@ -17,11 +22,42 @@ export const chatApi = createApi({
   },
 
   endpoints: (build) => ({
+    getConversations: build.query<ConversationSummary[], void>({
+      query: () => '/conversations',
+      providesTags: (result) =>
+        result
+          ? [
+              { type: 'Conversation', id: 'LIST' },
+              ...result.map((c) => ({ type: 'Conversation' as const, id: c.id })),
+            ]
+          : [{ type: 'Conversation', id: 'LIST' }],
+    }),
+
+    getConversation: build.query<Conversation, string>({
+      query: (id) => `/conversations/${id}`,
+      providesTags: (_r, _e, id) => [{ type: 'Conversation', id }],
+    }),
+
+    deleteConversation: build.mutation<void, string>({
+      query: (id) => ({ url: `/conversations/${id}`, method: 'DELETE' }),
+      invalidatesTags: (_r, _e, id) => [
+        { type: 'Conversation', id: 'LIST' },
+        { type: 'Conversation', id },
+      ],
+    }),
+
     sendChat: build.mutation<ChatResult, ChatRequest>({
       query: (body) => ({ url: '/ai/chat', method: 'POST', body }),
-      // Cross-slice invalidation: tags are per-API instance, so we dispatch
-      // tasksApi's own invalidation action via onQueryStarted instead of
-      // using invalidatesTags (which would only invalidate within chatApi).
+      // Refresh this conversation (new messages) and the list (updatedAt / new
+      // thread / new title). Plus cross-slice: invalidate tasks when the turn
+      // touched the board.
+      invalidatesTags: (result) =>
+        result
+          ? [
+              { type: 'Conversation', id: 'LIST' },
+              { type: 'Conversation', id: result.conversationId },
+            ]
+          : [{ type: 'Conversation', id: 'LIST' }],
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
         const { data } = await queryFulfilled;
         if (
@@ -36,4 +72,9 @@ export const chatApi = createApi({
   }),
 });
 
-export const { useSendChatMutation } = chatApi;
+export const {
+  useGetConversationsQuery,
+  useGetConversationQuery,
+  useDeleteConversationMutation,
+  useSendChatMutation,
+} = chatApi;

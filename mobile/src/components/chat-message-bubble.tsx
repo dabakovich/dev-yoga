@@ -5,17 +5,21 @@ import { Platform, Pressable, StyleSheet, ToastAndroid } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import type { StoredMessage } from '@/store/chat-slice';
+import type { Message } from '@/utils/api';
+import { formatChatReply } from '@/utils/format-chat-reply';
 
-export function ChatMessageBubble({ message }: { message: StoredMessage }) {
+export function ChatMessageBubble({ message }: { message: Message }) {
   const theme = useTheme();
   const isUser = message.role === 'user';
+  // Assistant messages re-render their persisted side-effect notes; user
+  // messages have no effects so render plain content.
+  const text = isUser ? message.content : formatChatReply(message.content, message.effects);
 
   return (
     <Pressable
       style={[styles.bubble, isUser ? styles.bubbleUser : styles.bubbleAssistant]}
       onLongPress={() => {
-        Clipboard.setStringAsync(message.content);
+        Clipboard.setStringAsync(text);
 
         if (Platform.OS === 'ios') Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
@@ -31,7 +35,7 @@ export function ChatMessageBubble({ message }: { message: StoredMessage }) {
           },
         ]}
       >
-        {message.content}
+        {text}
       </ThemedText>
     </Pressable>
   );
