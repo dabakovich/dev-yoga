@@ -16,11 +16,19 @@ export interface ChatTurnEffects {
   forgotMemories: string[];
 }
 
-// What the agent hands back to the controller: the assistant's final text plus
-// everything the tools did this turn (so the client can render confirmations
-// and refresh its list).
-export interface ChatResult extends ChatTurnEffects {
+// What a single text-generation pass produces — the assistant's reply plus the
+// effects the tools recorded. Both the live agent and the mock agent return this
+// shape; ChatAgentService wraps it with persistence concerns (below).
+export interface AgentTurnOutput extends ChatTurnEffects {
   reply: string;
+}
+
+// What the controller returns to the client: the generation output plus the
+// conversation id it belongs to and, on the first turn, the freshly generated
+// title.
+export interface ChatResult extends AgentTurnOutput {
+  conversationId: string;
+  title?: string;
 }
 
 export const createChatTurnEffects = (): ChatTurnEffects => ({
