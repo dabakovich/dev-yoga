@@ -32,24 +32,46 @@ export interface TaskQuery {
   sortOrder?: SortOrder;
 }
 
-// Chat types — mirrors backend ChatRequestDto / ChatResult.
+// Conversation / chat types — mirror backend conversations + ChatResult.
 export type ChatRole = 'user' | 'assistant';
 
-export interface ChatMessage {
-  role: ChatRole;
-  content: string;
-}
-
-export interface ChatRequest {
-  messages: ChatMessage[];
-}
-
-export interface ChatResult {
-  reply: string;
+// Per-assistant-message side effects (mirrors backend ChatTurnEffects).
+export interface MessageEffects {
   createdTasks: Task[];
   updatedTasks: Task[];
   deletedTasks: Pick<Task, 'id' | 'title'>[];
-  // Durable project facts the agent saved / dropped this turn (the fact text).
   savedMemories: string[];
   forgotMemories: string[];
+}
+
+export interface Message {
+  id: string;
+  role: ChatRole;
+  content: string;
+  effects?: MessageEffects | null;
+  createdAt: string;
+}
+
+// List item — no messages (the list endpoint omits them).
+export interface ConversationSummary {
+  id: string;
+  title?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Conversation extends ConversationSummary {
+  messages: Message[];
+}
+
+// Body for POST /ai/chat — stateful: optional conversationId + the new message.
+export interface ChatRequest {
+  conversationId?: string;
+  message: string;
+}
+
+export interface ChatResult extends MessageEffects {
+  conversationId: string;
+  reply: string;
+  title?: string;
 }
