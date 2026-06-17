@@ -59,13 +59,17 @@ export const chatApi = createApi({
             ]
           : [{ type: 'Conversation', id: 'LIST' }],
       async onQueryStarted(_arg, { dispatch, queryFulfilled }) {
-        const { data } = await queryFulfilled;
-        if (
-          data.createdTasks.length > 0 ||
-          data.updatedTasks.length > 0 ||
-          data.deletedTasks.length > 0
-        ) {
-          dispatch(tasksApi.util.invalidateTags([{ type: 'Task', id: 'LIST' }]));
+        try {
+          const { data } = await queryFulfilled;
+          if (
+            data.createdTasks.length > 0 ||
+            data.updatedTasks.length > 0 ||
+            data.deletedTasks.length > 0
+          ) {
+            dispatch(tasksApi.util.invalidateTags([{ type: 'Task', id: 'LIST' }]));
+          }
+        } catch {
+          // Mutation failed — no task invalidation needed.
         }
       },
     }),
