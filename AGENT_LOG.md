@@ -96,3 +96,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 ## 2026-06-17
 
 - `scaffold` TDD: extracted pure `formatChatReply` helper from chat screen inline logic; test written first (failed: module not found), then implementation, 4/4 passing.
+- `scaffold` TDD: made `ChatAgentService` stateful — persists user/assistant messages (with effects) via `ConversationsService` and AI-titles the first turn; spec written first (3 failing), then implemented, 4/4 passing.
