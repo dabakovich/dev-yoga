@@ -40,9 +40,14 @@ export default function ChatThreadScreen() {
   const [draftText, setDraftText] = useState('');
 
   const messages = conversation?.messages ?? [];
-  // Guard on isConversationLoading so the empty state doesn't flash while the
-  // conversation is being fetched (messages is [] before data arrives).
-  const isEmpty = !isNew && !isConversationLoading && messages.length === 0;
+  // Show the empty state (with quick-reply chips) whenever there are no messages
+  // and nothing is in flight. A brand-new thread (`isNew`) skips the history
+  // fetch, so isConversationLoading is already false there — it must NOT be
+  // excluded, or the chips never render on /chat/new. Guarding on
+  // isConversationLoading avoids a flash while an existing thread loads, and on
+  // isLoading keeps the typing bubble (not chips) visible while the first
+  // message of a new thread is being sent.
+  const isEmpty = messages.length === 0 && !isConversationLoading && !isLoading;
   const canSend = draftText.trim().length > 0 && !isLoading;
   // Inverted list: index 0 renders at the bottom, so feed it newest-first.
   const listData = [...messages].reverse();
