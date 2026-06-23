@@ -28,21 +28,29 @@ type TaskItemProps = { item: Task; onDelete: (id: string) => void };
 
 const TaskItem = memo(function TaskItem({ item, onDelete }: TaskItemProps) {
   return (
-    <Link href={{ pathname: './[id]', params: { id: item.id } }} asChild>
-      <Link.Trigger>
-        <Pressable>
-          <TaskCard task={item} />
-        </Pressable>
-      </Link.Trigger>
-      <Link.Preview style={{ backgroundColor: 'white' }} />
-      <Link.Menu>
-        <Link.MenuAction
-          icon="trash"
-          destructive
-          onPress={() => onDelete(item.id)}
-        >Delete</Link.MenuAction>
-      </Link.Menu>
-    </Link>
+    // The native context-menu/preview host (<Link.Preview>/<Link.Menu>) strips its
+    // entire trigger subtree from the iOS accessibility tree, so the card text is
+    // invisible to VoiceOver *and* to XCUITest/Maestro. Wrapping the Link in an
+    // `accessible` View — a sibling-parent of the native host, not inside the
+    // swallowed subtree — re-exposes the card as one labelled element. Touches still
+    // reach the inner Link, so tap-to-open and the long-press preview keep working.
+    <View accessible accessibilityLabel={item.title} testID={`task-${item.id}`}>
+      <Link href={{ pathname: './[id]', params: { id: item.id } }} asChild>
+        <Link.Trigger>
+          <Pressable>
+            <TaskCard task={item} />
+          </Pressable>
+        </Link.Trigger>
+        <Link.Preview style={{ backgroundColor: 'white' }} />
+        <Link.Menu>
+          <Link.MenuAction
+            icon="trash"
+            destructive
+            onPress={() => onDelete(item.id)}
+          >Delete</Link.MenuAction>
+        </Link.Menu>
+      </Link>
+    </View>
   );
 });
 
