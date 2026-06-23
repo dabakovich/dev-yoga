@@ -108,3 +108,4 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 ## 2026-06-23
 
 - `scaffold` Added `ios-screenshot` skill: `capture.sh` grabs a booted iOS Simulator screenshot (+ optional `devyoga://` deep-link nav) so the agent can Read its own UI and close the implement→observe→fix loop; gitignored `mobile/.screenshots`, plus SKILL.md and a CLAUDE.md pointer.
+- `fix` Quick-reply chips now render on the new-chat screen: dropped the `!isNew` guard in `chat/[id].tsx`'s `isEmpty` (it forced `/chat/new` to skip the empty state); now `messages.length === 0 && !isConversationLoading && !isLoading`. Verified via simulator screenshot.
