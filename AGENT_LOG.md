@@ -104,3 +104,7 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 - `review` Reviewed Task 8 diff (chat-api overhaul, chat-slice deletion, formatChatReply retargeting); identified critical dead-import bug in chat/index.tsx still referencing deleted chat-slice and stale ChatMessage type.
 - `scaffold` Task 9: created `chat/[id].tsx` thread screen (send/delete/new-thread routing via `router.replace`) and updated `_layout.tsx` to register the `[id]` route; tsc clean on new files.
 - `edit` Mobile: chat tab is now a backend-backed conversation list + thread screens (RTK Query).
+
+## 2026-06-23
+
+- `scaffold` Added `ios-screenshot` skill: `capture.sh` grabs a booted iOS Simulator screenshot (+ optional `devyoga://` deep-link nav) so the agent can Read its own UI and close the implement→observe→fix loop; gitignored `mobile/.screenshots`, plus SKILL.md and a CLAUDE.md pointer.
