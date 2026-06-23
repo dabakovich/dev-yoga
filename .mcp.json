@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "maestro": {
+      "command": "uv",
+      "args": [
+        "run",
+        "--with",
+        "mcp[cli]",
+        "--with",
+        "uv",
+        "--with",
+        "requests",
+        "mcp",
+        "run",
+        "${MAESTRO_MCP_PATH}"
+      ],
+      "env": {
+        "MAESTRO_BINARY_PATH": "${HOME}/.maestro/bin/maestro",
+        "MAESTRO_API_KEY": "${MAESTRO_API_KEY:-}"
+      }
+    }
+  }
+}
