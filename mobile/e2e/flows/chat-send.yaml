@@ -1,0 +1,17 @@
+# Chat-send flow — open a new chat, send a message, and capture the result.
+# The assistant reply varies (real LLM, or canned text in mock mode), so this
+# asserts the *send* worked (the user bubble echoes) and waits for the reply to
+# render before screenshotting — it does not assert specific reply text.
+appId: com.dabakovich.dev-yoga
+---
+- launchApp
+- openLink: devyoga:///chat/new
+- tapOn:
+    id: "chat-input"
+- inputText: "What should I work on first today?"
+- tapOn:
+    id: "chat-send"
+- assertVisible: "What should I work on first today?"   # send echoed into the thread
+- waitForAnimationToEnd:
+    timeout: 15000                                       # give the reply time to stream in
+- takeScreenshot: chat-reply

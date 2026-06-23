@@ -1,0 +1,40 @@
+# Create-task flow — drive the create form end to end and confirm the task lands
+# in the list. Targets the testIDs added to TaskForm (see SKILL.md testID map).
+#
+# Two things this flow has to respect:
+#   1. Enter via the FAB (not a raw `openLink: devyoga:///new`) so there's a real
+#      navigation stack for `router.back()` to pop after saving.
+#   2. The form is a scrollable form sheet — Priority and Save sit below the fold,
+#      and Maestro's `tapOn` does NOT auto-scroll, so hide the keyboard and
+#      `scrollUntilVisible` before tapping the lower controls.
+#
+# NOTE: each run creates a real task on the backend; clean up with `npm run seed:clean`
+# in backend/ if the list gets noisy.
+appId: com.dabakovich.dev-yoga
+---
+- launchApp
+- openLink: devyoga://               # Tasks list
+- tapOn: "Add task"                  # FAB → New Task form (keeps a back stack)
+- tapOn:
+    id: "task-title-input"
+- inputText: "Maestro smoke task"
+- tapOn:
+    id: "task-desc-input"
+- inputText: "Created by the maestro-e2e create-task flow"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "task-priority-high"
+    direction: DOWN
+- tapOn:
+    id: "task-priority-high"
+- takeScreenshot: after-priority     # diagnostic: confirm High is now selected
+- scrollUntilVisible:
+    element:
+      id: "task-save"
+    direction: DOWN
+- tapOn:
+    id: "task-save"                  # router.back() → returns to the Tasks list
+- assertVisible: "Add task"          # we're back on the list (FAB only exists here)
+- assertVisible: "Maestro smoke task"          # we're back on the list (FAB only exists here)
+- takeScreenshot: create-task-result

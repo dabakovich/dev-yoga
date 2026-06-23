@@ -1,0 +1,11 @@
+# Smoke flow — launch the app and glance at both tabs.
+# Run: mobile/e2e/scripts/run-flow.sh mobile/e2e/flows/smoke.yaml
+appId: com.dabakovich.dev-yoga
+---
+- launchApp
+- openLink: devyoga://            # Tasks list
+- assertVisible: "Tasks"
+- takeScreenshot: tasks
+- openLink: devyoga:///chat       # Chat list
+- assertVisible: "Chat"
+- takeScreenshot: chat

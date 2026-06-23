@@ -48,3 +48,7 @@ example
 
 # agent dev-feedback screenshots (ios-screenshot skill)
 .screenshots
+
+# maestro-e2e skill: run artifacts + ad-hoc scratch flows
+.maestro-artifacts
+.maestro

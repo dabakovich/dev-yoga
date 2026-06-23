@@ -72,6 +72,7 @@ export function TaskForm({
       <View style={styles.field}>
         <ThemedText type="smallBold">Title</ThemedText>
         <TextInput
+          testID="task-title-input"
           value={title}
           onChangeText={setTitle}
           placeholder="What needs doing?"
@@ -83,6 +84,7 @@ export function TaskForm({
       <View style={styles.field}>
         <ThemedText type="smallBold">Description</ThemedText>
         <TextInput
+          testID="task-desc-input"
           value={description}
           onChangeText={setDescription}
           placeholder="Optional details"
@@ -98,6 +100,7 @@ export function TaskForm({
           {STATUSES.map((s) => (
             <OptionButton
               key={s.value}
+              testID={`task-status-${s.value}`}
               value={s.value}
               label={s.label}
               selected={s.value === status}
@@ -114,6 +117,7 @@ export function TaskForm({
           {PRIORITIES.map((p) => (
             <OptionButton
               key={p.value}
+              testID={`task-priority-${p.value}`}
               value={p.value}
               label={p.label}
               selected={p.value === priority}
@@ -125,6 +129,7 @@ export function TaskForm({
       </View>
 
       <Pressable
+        testID="task-save"
         disabled={!canSubmit}
         onPress={handleSubmit}
         style={[styles.submitButton, { opacity: canSubmit ? 1 : 0.5 }]}>
@@ -137,6 +142,7 @@ export function TaskForm({
 }
 
 type OptionButtonProps<V extends string> = {
+  testID?: string;
   value: V;
   label: string;
   selected: boolean;
@@ -145,6 +151,7 @@ type OptionButtonProps<V extends string> = {
 };
 
 function OptionButton<V extends string>({
+  testID,
   value,
   label,
   selected,
@@ -155,6 +162,7 @@ function OptionButton<V extends string>({
 
   return (
     <Pressable
+      testID={testID}
       onPress={handlePress}
       style={[
         styles.statusButton,

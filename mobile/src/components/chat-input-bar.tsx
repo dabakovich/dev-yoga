@@ -28,6 +28,7 @@ export function ChatInputBar({ value, onChangeText, onSend, canSend, bottomInset
       ]}
     >
       <TextInput
+        testID="chat-input"
         style={[
           styles.textInput,
           {
@@ -45,6 +46,7 @@ export function ChatInputBar({ value, onChangeText, onSend, canSend, bottomInset
         returnKeyType="send"
       />
       <Pressable
+        testID="chat-send"
         onPress={onSend}
         disabled={!canSend}
         style={[styles.sendButton, { opacity: canSend ? 1 : 0.4 }]}
