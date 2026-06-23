@@ -109,3 +109,5 @@ Maintained by the `agent-log` skill (proactively) or by hand.
 
 - `scaffold` Added `ios-screenshot` skill: `capture.sh` grabs a booted iOS Simulator screenshot (+ optional `devyoga://` deep-link nav) so the agent can Read its own UI and close the implement→observe→fix loop; gitignored `mobile/.screenshots`, plus SKILL.md and a CLAUDE.md pointer.
 - `fix` Quick-reply chips now render on the new-chat screen: dropped the `!isNew` guard in `chat/[id].tsx`'s `isEmpty` (it forced `/chat/new` to skip the empty state); now `messages.length === 0 && !isConversationLoading && !isLoading`. Verified via simulator screenshot.
+- `scaffold` maestro-e2e skill: SKILL.md documents the build→drive→observe→fix loop with run-flow.sh, curated flows in mobile/e2e/, and optional Maestro MCP wiring via .mcp.json.
+- `scaffold` mobile/e2e/: added Maestro flows (smoke, create-task, chat-send) and run-flow.sh runner under mobile/e2e/ (moved out of .claude/skills/); also added testIDs to task-form and chat-input-bar so flows can target controls by id.
