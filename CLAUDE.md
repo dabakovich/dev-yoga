@@ -121,4 +121,7 @@ Point the app at the backend via `EXPO_PUBLIC_API_BASE` (defaults to
 - **Explain NestJS patterns** — include under-the-hood context (DI, decorators,
   request pipeline) alongside backend changes. Code comments lean explanatory by design.
 - **Stay proactive** — suggest ideas and next steps, don't just execute literally.
+- **See your UI work** — after any screen-affecting change, capture the booted iOS
+  Simulator and Read it back via the `ios-screenshot` skill (deep-link nav +
+  capture); don't claim a screen looks right without looking.
 - Postman work uses the **DevYoga** workspace (`347ffdcb-c4f0-49c1-a69d-28324ea8d00c`).

@@ -45,3 +45,6 @@ example
 
 # IDEs
 .vscode
+
+# agent dev-feedback screenshots (ios-screenshot skill)
+.screenshots
