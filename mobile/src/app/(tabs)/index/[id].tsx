@@ -1,6 +1,8 @@
+import { Button, Host } from '@expo/ui/swift-ui';
+import { font, labelStyle, padding } from '@expo/ui/swift-ui/modifiers';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback } from 'react';
-import { ActivityIndicator, Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, View } from 'react-native';
 
 import { TaskForm } from '@/components/task-form';
 import { ThemedText } from '@/components/themed-text';
@@ -56,11 +58,15 @@ export default function TaskDetailScreen() {
       <Stack.Screen
         options={{
           headerRight: () => (
-            <Pressable onPress={onDelete}>
-              <ThemedText type="link" style={styles.deleteButton}>
-                Delete
-              </ThemedText>
-            </Pressable>
+            <Host matchContents>
+              <Button
+                label="Delete task"
+                systemImage="trash"
+                role="destructive"
+                modifiers={[labelStyle('iconOnly'), font({ size: 20 }), padding({ all: 4 })]}
+                onPress={onDelete}
+              />
+            </Host>
           ),
         }}
       />
@@ -97,8 +103,5 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: Spacing.three,
-  },
-  deleteButton: {
-    color: '#FF3B30',
   },
 });

@@ -8,8 +8,8 @@
 #      and Maestro's `tapOn` does NOT auto-scroll, so hide the keyboard and
 #      `scrollUntilVisible` before tapping the lower controls.
 #
-# NOTE: each run creates a real task on the backend; clean up with `npm run seed:clean`
-# in backend/ if the list gets noisy.
+# The flow is self-cleaning: the smoke task is deleted at the end so the backend
+# stays tidy across repeated runs. No manual `seed:clean` needed.
 appId: com.dabakovich.dev-yoga
 ---
 - launchApp
@@ -36,5 +36,13 @@ appId: com.dabakovich.dev-yoga
 - tapOn:
     id: "task-save"                  # router.back() → returns to the Tasks list
 - assertVisible: "Add task"          # we're back on the list (FAB only exists here)
-- assertVisible: "Maestro smoke task"          # we're back on the list (FAB only exists here)
+- assertVisible: "Maestro smoke task"
 - takeScreenshot: create-task-result
+# --- cleanup: delete the smoke task so the backend stays tidy ---
+- tapOn: "Maestro smoke task"        # open detail screen
+- waitForAnimationToEnd: { timeout: 3000 }
+- tapOn: "Delete task"               # trash icon button (accessible label) → fires Alert
+- tapOn: "Delete"                    # confirm in the Alert (only "Delete" text now)
+- waitForAnimationToEnd: { timeout: 3000 }
+- assertNotVisible: "Maestro smoke task"
+- takeScreenshot: delete-task-result

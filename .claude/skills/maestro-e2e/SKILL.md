@@ -68,6 +68,7 @@ add or rename a testID.**
 | Create-task: status option      | `task-status-<value>` (`todo`/`in_progress`/`done`) |
 | Create-task: priority option    | `task-priority-<value>` (`low`/`medium`/`high`)     |
 | Create-task: save button        | `task-save`              |
+| Task detail: delete button      | label `"Delete task"` (SwiftUI `Button`, use `tapOn: "Delete task"`) |
 | Chat: message input             | `chat-input`             |
 | Chat: send button               | `chat-send`              |
 
